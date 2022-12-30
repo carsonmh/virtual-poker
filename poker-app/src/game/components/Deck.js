@@ -1,5 +1,3 @@
-function Deck() {}
-
 function makeDeck() {
   const deck = [];
   const suits = ["H", "D", "C", "S"];
@@ -17,7 +15,7 @@ function makeDeck() {
 }
 
 function shuffleArray(array) {
-  for (let i = array.length; i > 0; i--) {
+  for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     const temp = array[i];
     array[i] = array[j];
@@ -25,5 +23,4 @@ function shuffleArray(array) {
   }
 }
 
-export default Deck;
 export { makeDeck };

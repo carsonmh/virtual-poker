@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import io from "socket.io-client";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Game from "./game/Game";
 import Start from "./screens/Start";
@@ -63,7 +64,7 @@ function App() {
   }
 
   return (
-    <div style={{ height: "100vh", background: "green" }}>
+    <div style={{ background: "green", height: "100%", minHeight: "100vh" }}>
       {roomExists ? (
         <Game
           roomCode={roomCode}
@@ -87,6 +88,14 @@ function App() {
       )}
     </div>
   );
+  // return (
+  //   <Router>
+  //     <Routes>
+  //       {/* <Route path="/" element={<Navigate replace to="/home" />} /> */}
+  //       <Route exact path={"/private-game"} element={<Game />} />
+  //     </Routes>
+  //   </Router>
+  // );
 }
 
 export default App;
