@@ -1,7 +1,7 @@
 import Board from "./components/Board";
 import PlayMenu from "./components/PlayMenu";
 import { makeDeck } from "./components/Deck";
-import { determineWinner } from "./GameFunctions";
+import { determineWinner } from "../utils/GameFunctions";
 
 import React, { useState, useEffect } from "react";
 
@@ -36,6 +36,22 @@ function Game({ roomCode, socket, users, currUser }) {
   const [p2Bet, setP2Bet] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [startingPlayer, setStartingPlayer] = useState("");
+  const [isCurrentTurn, setIsCurrentTurn] = useState("");
+
+  useEffect(
+    () => {
+      if (
+        (currentTurn === "p1" && playerNumber === 0) ||
+        (currentTurn === "p2" && playerNumber === 1)
+      ) {
+        setIsCurrentTurn(true);
+      } else {
+        setIsCurrentTurn(false);
+      }
+    },
+    [],
+    [currentTurn]
+  );
 
   useEffect(() => {
     setPlayerNumber(() => currUser.playerNumber);
@@ -109,6 +125,9 @@ function Game({ roomCode, socket, users, currUser }) {
     setRaiseAmount(BB);
     switch (turnCount) {
       case 0:
+        if (p1Chips === 0 || p2Chips === 0) {
+          socket.emit("game_state_change", { gameOver: true });
+        }
         setTestWord("beginning");
         if (currentTurn === "p1" && playerNumber === 0) {
           socket.emit("game_state_change", {
@@ -175,6 +194,8 @@ function Game({ roomCode, socket, users, currUser }) {
       turnCount: 0,
       restart: false,
       winner: "none",
+      p1Bet: 0,
+      p2Bet: 0,
     });
   }
 
@@ -190,7 +211,7 @@ function Game({ roomCode, socket, users, currUser }) {
       switch (winner) {
         case "p1":
           resetGameState(
-            p1Chips + pot,
+            p1Chips + pot + p2Bet + p1Bet,
             p2Chips,
             pot,
             "p1",
@@ -202,7 +223,7 @@ function Game({ roomCode, socket, users, currUser }) {
         case "p2":
           resetGameState(
             p1Chips,
-            p2Chips + pot,
+            p2Chips + pot + p2Bet + p1Bet,
             pot,
             "p2",
             tp1Cards,

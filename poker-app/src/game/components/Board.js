@@ -94,6 +94,7 @@ function Board({
           cards={p2Cards}
           currentTurn={currentTurn}
           playerNumber={1}
+          isCurrentUser={false}
         />
       ) : (
         <PlayerSlot
@@ -104,6 +105,7 @@ function Board({
           cards={p1Cards}
           currentTurn={currentTurn}
           playerNumber={0}
+          isCurrentUser={false}
         />
       )}
       <BoardDiv>
@@ -144,6 +146,7 @@ function Board({
           cards={p1Cards}
           currentTurn={currentTurn}
           playerNumber={0}
+          isCurrentUser={true}
         />
       ) : (
         <PlayerSlot
@@ -154,6 +157,7 @@ function Board({
           cards={p2Cards}
           currentTurn={currentTurn}
           playerNumber={1}
+          isCurrentUser={true}
         />
       )}
     </BoardWrapper>

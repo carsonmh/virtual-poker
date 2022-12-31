@@ -3,6 +3,21 @@ import Card from "./Card";
 
 import { useEffect, useState } from "react";
 
+const BlankCard = styled.div`
+  width: 45px;
+  height: 70px;
+  justify-content: space-around;
+  border: solid 1.5px white;
+  border-radius: 5px;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: black;
+  color: red;
+  font-weight: bold;
+`;
+
 const PlayerSlotDiv = styled.div`
   border-radius: 1000px;
   padding: 15px;
@@ -39,7 +54,14 @@ const PlayerSlotWrapper = styled.div`
   align-items: center;
 `;
 
-function PlayerSlot({ user, chips, cards, currentTurn, playerNumber }) {
+function PlayerSlot({
+  user,
+  chips,
+  cards,
+  currentTurn,
+  playerNumber,
+  isCurrentUser,
+}) {
   const [thisTurn, setThisTurn] = useState(false);
   useEffect(
     () => {
@@ -59,12 +81,21 @@ function PlayerSlot({ user, chips, cards, currentTurn, playerNumber }) {
   return (
     <PlayerSlotWrapper style={{ opacity: thisTurn ? "100%" : "50%" }}>
       <CardWrapper>
-        <Card card={cards[0]} />
-        <Card card={cards[1]} />
+        {isCurrentUser === false ? (
+          <>
+            <BlankCard>HU</BlankCard>
+            <BlankCard>HU</BlankCard>
+          </>
+        ) : (
+          <>
+            <Card card={cards[0]} />
+            <Card card={cards[1]} />
+          </>
+        )}
       </CardWrapper>
       <PlayerSlotDiv>
         <InnerText>
-          {user} / {chips}
+          {user} {isCurrentUser ? <span>(you)</span> : <span></span>} / {chips}
         </InnerText>
       </PlayerSlotDiv>
     </PlayerSlotWrapper>

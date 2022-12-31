@@ -81,6 +81,21 @@ function PlayMenu({
 }) {
   const [functional, setFunctional] = useState(true);
   const [allIn, setAllIn] = useState(false);
+  const [raiseButtonVisible, setRaiseButtonVisible] = useState(true);
+  let playerChips = [p1Chips, p2Chips];
+  let playerBets = [p1Bet, p2Bet];
+
+  function canRaise() {
+    if (
+      raiseAmount % BB !== 0 ||
+      raiseAmount > Math.min(p1Chips, p2Chips) ||
+      raiseAmount + increment > playerChips[playerNumber]
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   useEffect(
     () => {
@@ -94,6 +109,18 @@ function PlayMenu({
       }
     },
     [currentTurn],
+    []
+  );
+
+  useEffect(
+    () => {
+      if (!canRaise()) {
+        setRaiseButtonVisible(false);
+      } else {
+        setRaiseButtonVisible(true);
+      }
+    },
+    [raiseAmount, increment],
     []
   );
 
@@ -137,7 +164,10 @@ function PlayMenu({
 
     socket.emit("game_state_change", gameState);
 
-    if (p1Chips === 0 || p2Chips === 0) {
+    const p1ChipsTemp = p1Chips;
+    const p2ChipsTemp = p2Chips;
+
+    if (p1ChipsTemp === 0 || p2ChipsTemp === 0) {
       setFunctional(false);
       setAllIn(true);
     }
@@ -145,11 +175,7 @@ function PlayMenu({
 
   function raiseHandler(e) {
     e.preventDefault();
-    if (
-      !functional ||
-      raiseAmount % BB !== 0 ||
-      raiseAmount > Math.min(p1Chips, p2Chips)
-    ) {
+    if (!functional || !canRaise()) {
       return;
     }
     let turnIncrement = turnCount % 2 === 0 ? 1 : 0;
@@ -184,18 +210,13 @@ function PlayMenu({
         winner: "p2",
         restart: true,
         turnCount: -1, //reset turn count
-        p1Bet: 0,
       });
     } else if (currentTurn === "p2") {
       socket.emit("game_state_change", {
         winner: "p1",
         restart: true,
         turnCount: -1, //reset turn count
-        p1Bet: 0,
       });
-    }
-    if (p1Chips === 0 || p2Chips === 0) {
-      socket.emit("game_state_change", { gameOver: true });
     }
   }
   return (
@@ -209,7 +230,12 @@ function PlayMenu({
         }}
       >
         <StyledButton onClick={() => foldHandler()}>Fold</StyledButton>
-        <StyledButton onClick={() => callHandler()}>Call</StyledButton>
+        <StyledButton onClick={() => callHandler()}>
+          Call{" "}
+          <span style={{ color: "yellow", marginLeft: "7px" }}>
+            {functional ? increment : ""}
+          </span>
+        </StyledButton>
       </div>
       <div
         style={{
@@ -225,10 +251,11 @@ function PlayMenu({
             onChange={(v) => {
               setRaiseAmount(v);
             }}
-            defaultValue={60}
+            defaultValue={20}
             min={20}
             max={Math.min(p1Chips, p2Chips)}
             step={BB}
+            value={raiseAmount}
           >
             <SliderTrack bg="red.100">
               <Box position="relative" right={10} />
@@ -240,10 +267,26 @@ function PlayMenu({
         <RaiseInput
           value={raiseAmount}
           onChange={(v) => {
-            setRaiseAmount(parseInt(v.target.value));
+            if (v.target.value && !isNaN(v.target.value)) {
+              setRaiseAmount(parseInt(v.target.value));
+            }
           }}
         />
-        <StyledButton onClick={(e) => raiseHandler(e)}>Raise</StyledButton>
+        <StyledButton
+          style={{
+            width: "125px",
+            visibility: raiseButtonVisible ? "visible" : "hidden",
+          }}
+          onClick={(e) => raiseHandler(e)}
+        >
+          Raise{" "}
+          <span style={{ marginLeft: "5px" }}>{functional ? "to" : ""}</span>
+          <span style={{ color: "yellow", marginLeft: "7px" }}>
+            {functional
+              ? raiseAmount + increment + playerBets[playerNumber]
+              : ""}
+          </span>
+        </StyledButton>
       </div>
     </PlayMenuWrapper>
   );
