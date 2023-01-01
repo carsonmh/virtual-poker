@@ -1,6 +1,6 @@
 import { useState } from "react";
 import io from "socket.io-client";
-import Game from "../game/Game";
+import Game from "./Game";
 import { generateRoomCode } from "../utils/Utils";
 
 function PrivateGame({ socket }) {

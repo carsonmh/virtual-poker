@@ -78,6 +78,7 @@ function PlayMenu({
   p2Cards,
   mainDeck,
   startingPlayer,
+  SB,
 }) {
   const [functional, setFunctional] = useState(true);
   const [allIn, setAllIn] = useState(false);
@@ -87,7 +88,7 @@ function PlayMenu({
 
   function canRaise() {
     if (
-      raiseAmount % BB !== 0 ||
+      raiseAmount % SB !== 0 ||
       raiseAmount > Math.min(p1Chips, p2Chips) ||
       raiseAmount + increment > playerChips[playerNumber]
     ) {
@@ -205,20 +206,14 @@ function PlayMenu({
     if (!functional) {
       return;
     }
-    if (currentTurn === "p1") {
-      socket.emit("game_state_change", {
-        winner: "p2",
-        restart: true,
-        turnCount: -1, //reset turn count
-      });
-    } else if (currentTurn === "p2") {
-      socket.emit("game_state_change", {
-        winner: "p1",
-        restart: true,
-        turnCount: -1, //reset turn count
-      });
-    }
+    const newGameState = {
+      winner: currentTurn === "p1" ? "p2" : "p1",
+      restart: true,
+      turnCount: -1, //reset turn count
+    };
+    socket.emit("game_state_change", newGameState);
   }
+
   return (
     <PlayMenuWrapper>
       <div
@@ -252,9 +247,9 @@ function PlayMenu({
               setRaiseAmount(v);
             }}
             defaultValue={20}
-            min={20}
+            min={10}
             max={Math.min(p1Chips, p2Chips)}
-            step={BB}
+            step={SB}
             value={raiseAmount}
           >
             <SliderTrack bg="red.100">

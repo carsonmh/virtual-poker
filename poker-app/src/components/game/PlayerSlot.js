@@ -9,7 +9,6 @@ const BlankCard = styled.div`
   justify-content: space-around;
   border: solid 1.5px white;
   border-radius: 5px;
-  background: white;
   display: flex;
   justify-content: center;
   align-items: center;

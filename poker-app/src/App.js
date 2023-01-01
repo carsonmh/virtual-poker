@@ -19,6 +19,7 @@ function App() {
             path={"/private-game"}
             element={<PrivateGame socket={socket} />}
           />
+          <Route path="/sign-up" element={<></>} />
         </Routes>
       </Router>
     </div>

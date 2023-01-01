@@ -1,6 +1,6 @@
-import Board from "./components/Board";
-import PlayMenu from "./components/PlayMenu";
-import { makeDeck } from "./components/Deck";
+import Board from "../components/game/Board";
+import PlayMenu from "../components/game/PlayMenu";
+import { makeDeck } from "../components/game/Deck";
 import { determineWinner } from "../utils/GameFunctions";
 
 import React, { useState, useEffect } from "react";
@@ -108,7 +108,6 @@ function Game({ roomCode, socket, users, currUser }) {
 
   socket.on("game_state_change", (state) => {
     setGameState((gameState) => ({ ...gameState, ...state }));
-    console.log(gameState);
   });
 
   useEffect(() => {
@@ -118,26 +117,19 @@ function Game({ roomCode, socket, users, currUser }) {
         if (p1Chips === 0 || p2Chips === 0) {
           socket.emit("game_state_change", { gameOver: true });
         }
+        const newGameState = {
+          p1Chips: currentTurn === "p1" ? p1Chips - SB : p1Chips - BB,
+          p2Chips: currentTurn === "p1" ? p2Chips - BB : p2Chips - SB,
+          pot: 0,
+          increment: SB,
+          p1Bet: currentTurn === "p1" ? SB : BB,
+          p2Bet: currentTurn === "p1" ? BB : SB,
+          startingPlayer: currentTurn,
+        };
         if (currentTurn === "p1" && playerNumber === 0) {
-          socket.emit("game_state_change", {
-            p1Chips: p1Chips - SB,
-            p2Chips: p2Chips - BB,
-            pot: 0,
-            increment: SB,
-            p1Bet: SB,
-            p2Bet: BB,
-            startingPlayer: currentTurn,
-          });
+          socket.emit("game_state_change", newGameState);
         } else if (currentTurn === "p2" && playerNumber === 1) {
-          socket.emit("game_state_change", {
-            p2Chips: p2Chips - SB,
-            p1Chips: p1Chips - BB,
-            pot: 0,
-            increment: SB,
-            p1Bet: BB,
-            p2Bet: SB,
-            startingPlayer: currentTurn,
-          });
+          socket.emit("game_state_change", newGameState);
         }
         break;
       // case 2:
@@ -285,6 +277,7 @@ function Game({ roomCode, socket, users, currUser }) {
         p2Bet={p2Bet}
         gameStarted={gameStarted}
         startingPlayer={startingPlayer}
+        SB={SB}
       />
     </GameWrapper>
   );

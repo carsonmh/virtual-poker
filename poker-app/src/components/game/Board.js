@@ -2,7 +2,7 @@ import PlayerSlot from "./PlayerSlot";
 import styled from "styled-components";
 import Card from "./Card";
 
-import BetAmount from "../components/BetAmount";
+import BetAmount from "./BetAmount";
 
 const BoardDiv = styled.div`
   width: 500px;
