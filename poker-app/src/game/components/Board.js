@@ -58,6 +58,7 @@ function Board({
   p1Bet,
   p2Bet,
   currentTurn,
+  gameState,
 }) {
   let cardLimit = 0;
   switch (turnCount) {

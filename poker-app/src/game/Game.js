@@ -14,28 +14,53 @@ const GameWrapper = styled.div`
 `;
 
 function Game({ roomCode, socket, users, currUser }) {
-  // game states
-  const [playerNumber, setPlayerNumber] = useState("");
-  const [p1Chips, setP1Chips] = useState(0);
-  const [p2Chips, setP2Chips] = useState(0);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [currentTurn, setCurrentTurn] = useState("p1");
-  const [turnCount, setTurnCount] = useState(null);
-  const [winner, setWinner] = useState("");
-  const [BB, setBB] = useState(20);
-  const [SB, setSB] = useState(10);
-  const [pot, setPot] = useState(0);
-  const [increment, setIncrement] = useState(0);
-  const [p1Cards, setP1Cards] = useState([]);
-  const [p2Cards, setP2Cards] = useState([]);
-  const [mainDeck, setMainDeck] = useState([]);
-  const [restart, setRestart] = useState(false);
-  const [testWord, setTestWord] = useState("beginning");
+  const initialState = {
+    playerNumber: 0,
+    p1Chips: 0,
+    p2Chips: 0,
+    gameStarted: false,
+    currentTurn: "p1",
+    turnCount: -1,
+    winner: "",
+    BB: 20,
+    SB: 10,
+    pot: 0,
+    increment: 0,
+    p1Cards: [],
+    p2Cards: [],
+    mainDeck: [],
+    restart: false,
+    p1Bet: 0,
+    p2Bet: 0,
+    gameOver: false,
+    startingPlayer: "",
+    testWord: "",
+  };
+  const [gameState, setGameState] = useState(initialState);
+  const {
+    playerNumber,
+    p1Chips,
+    p2Chips,
+    gameStarted,
+    currentTurn,
+    turnCount,
+    winner,
+    BB,
+    SB,
+    pot,
+    increment,
+    p1Cards,
+    p2Cards,
+    mainDeck,
+    restart,
+    p1Bet,
+    p2Bet,
+    gameOver,
+    startingPlayer,
+    testWord,
+  } = gameState;
+
   const [raiseAmount, setRaiseAmount] = useState(0);
-  const [p1Bet, setP1Bet] = useState(0);
-  const [p2Bet, setP2Bet] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [startingPlayer, setStartingPlayer] = useState("");
   const [isCurrentTurn, setIsCurrentTurn] = useState("");
 
   useEffect(
@@ -54,7 +79,10 @@ function Game({ roomCode, socket, users, currUser }) {
   );
 
   useEffect(() => {
-    setPlayerNumber(() => currUser.playerNumber);
+    setGameState((gameState) => ({
+      ...gameState,
+      playerNumber: currUser.playerNumber,
+    }));
   }, []);
 
   socket.on("game_starting", () => {
@@ -78,48 +106,10 @@ function Game({ roomCode, socket, users, currUser }) {
     }
   });
 
-  socket.on(
-    "game_state_change",
-    ({
-      p1Chips,
-      p2Chips,
-      gameStarted,
-      turnCount,
-      pot,
-      currentTurn,
-      increment,
-      restart,
-      p1Cards,
-      p2Cards,
-      mainDeck,
-      winner,
-      p1Bet,
-      p2Bet,
-      gameOver,
-      startingPlayer,
-    }) => {
-      p1Chips !== null && p1Chips !== undefined && setP1Chips(p1Chips);
-      p2Chips !== null && p2Chips !== undefined && setP2Chips(p2Chips);
-      gameStarted !== null &&
-        gameStarted !== undefined &&
-        setGameStarted(gameStarted);
-      turnCount !== null && turnCount !== undefined && setTurnCount(turnCount);
-      pot !== null && pot !== undefined && setPot(pot);
-      currentTurn && setCurrentTurn(currentTurn);
-      increment !== null && increment !== undefined && setIncrement(increment);
-      restart !== null && restart !== undefined && setRestart(restart);
-      p1Cards && setP1Cards(p1Cards);
-      p2Cards && setP2Cards(p2Cards);
-      mainDeck && setMainDeck(mainDeck);
-      winner && setWinner(winner);
-      p1Bet !== undefined && p1Bet !== null && setP1Bet(p1Bet);
-      p2Bet !== undefined && p2Bet !== null && setP2Bet(p2Bet);
-      gameOver !== undefined && gameOver !== null && setGameOver(gameOver);
-      startingPlayer !== undefined &&
-        startingPlayer !== null &&
-        setStartingPlayer(startingPlayer);
-    }
-  );
+  socket.on("game_state_change", (state) => {
+    setGameState((gameState) => ({ ...gameState, ...state }));
+    console.log(gameState);
+  });
 
   useEffect(() => {
     setRaiseAmount(BB);
@@ -128,7 +118,6 @@ function Game({ roomCode, socket, users, currUser }) {
         if (p1Chips === 0 || p2Chips === 0) {
           socket.emit("game_state_change", { gameOver: true });
         }
-        setTestWord("beginning");
         if (currentTurn === "p1" && playerNumber === 0) {
           socket.emit("game_state_change", {
             p1Chips: p1Chips - SB,
@@ -151,15 +140,15 @@ function Game({ roomCode, socket, users, currUser }) {
           });
         }
         break;
-      case 2:
-        setTestWord("flipping the flop");
-        break;
-      case 4:
-        setTestWord("flipping the turn");
-        break;
-      case 6:
-        setTestWord("flipping the river");
-        break;
+      // case 2:
+      //   setTestWord("flipping the flop");
+      //   break;
+      // case 4:
+      //   setTestWord("flipping the turn");
+      //   break;
+      // case 6:
+      //   setTestWord("flipping the river");
+      //   break;
       case 8:
         if (p1Chips === 0 || p2Chips === 0) {
           socket.emit("game_state_change", { gameOver: true });
@@ -243,7 +232,7 @@ function Game({ roomCode, socket, users, currUser }) {
           );
           break;
       }
-    setRestart(false);
+    setGameState((gameState) => ({ ...gameState, restart: false }));
   }, [restart]);
 
   if (gameOver === true) {
@@ -278,6 +267,7 @@ function Game({ roomCode, socket, users, currUser }) {
         p1Bet={p1Bet}
         p2Bet={p2Bet}
         currentTurn={currentTurn}
+        gameState={gameState}
       />
       <PlayMenu
         currentTurn={currentTurn}
