@@ -88,4 +88,4 @@ lerna-debug.log
 .DS_Store
 Thumbs.db
 
-server/serviceAccount.json
+**/serviceAccount.json
