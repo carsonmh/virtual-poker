@@ -1,20 +1,94 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-const firebaseConfig = {
-  apiKey: "AIzaSyCKpLrl6x3L7ZO1drMEnbc2GeJfh-t6_aY",
-  authDomain: "heads-up-poker-48666.firebaseapp.com",
-  projectId: "heads-up-poker-48666",
-  storageBucket: "heads-up-poker-48666.appspot.com",
-  messagingSenderId: "690954813756",
-  appId: "1:690954813756:web:879abd18eae171cf64de39",
-  measurementId: "G-N9KB5YC5YF",
-};
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../config/firebase-config";
+import axios from "axios";
+import { signOut } from "firebase/auth";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+function handleGoogleSignIn(setUser) {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      const user = result.user;
+      axios
+        .get("http://localhost:3001/api/get-users")
+        .then((result) => {
+          const resData = result.data[user.uid];
+          setUser((user) => ({ ...user, loggedIn: true }));
+          if (resData) {
+            return;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      return user.displayName;
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      // const email = error.customData.email;
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      return null;
+    });
+}
 
-const auth = getAuth(app);
+function handleGoogleLogout(e) {
+  e.preventDefault();
+  signOut(auth)
+    .then(() => {
+      localStorage.clear();
+      console.log("signed out");
+      return false;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
-export { auth, app };
+function logUserIn(setUser) {
+  auth.onAuthStateChanged((userCred) => {
+    if (userCred) {
+      const uid = userCred.uid;
+      userCred
+        .getIdToken()
+        .then((token) => {
+          localStorage.setItem("user-token", "Bearer " + token);
+          setUser((user) => ({ ...user, loggedIn: true }));
+        })
+        .catch((error) => console.log(error));
+      axios
+        .get("http://localhost:3001/api/get-users")
+        .then((result) => {
+          const resData = result.data[uid];
+          setUser((user) => ({ ...user, ...resData }));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  });
+}
+
+function checkUserToken() {
+  const userToken = localStorage.getItem("user-token");
+  if (!userToken || userToken === "undefined") {
+    return false;
+  }
+  axios
+    .get("http://localhost:3001/api/check-auth", {
+      headers: { authorization: userToken },
+    })
+    .then((result) => {
+      if (!result || result.data.message !== "success") {
+        return false;
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  return true;
+}
+
+export { handleGoogleSignIn, logUserIn, checkUserToken, handleGoogleLogout };

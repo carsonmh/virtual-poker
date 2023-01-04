@@ -22,6 +22,7 @@ function changeGameState(socket, io, state) {
 }
 
 async function createRoom(socket, io, data) {
+  console.log(data);
   const connectedSockets = io.sockets.adapter.rooms.get(data.code);
   if (connectedSockets && connectedSockets.size === 2) {
     socket.emit("room_join_error", { error: "room is full" });

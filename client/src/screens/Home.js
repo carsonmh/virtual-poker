@@ -1,77 +1,92 @@
-import React, { useEffect, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import React, { useEffect, useState, useContext } from "react";
+
 import { Link } from "react-router-dom";
-import { auth, app } from "../auth/auth";
+import { auth } from "../config/firebase-config";
+import axios from "axios";
+
+import userContext from "../contexts/userContext";
+import {
+  checkUserToken,
+  handleGoogleSignIn,
+  logUserIn,
+  handleGoogleLogout,
+} from "../auth/auth";
 
 function Home() {
-  const provider = new GoogleAuthProvider();
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
 
-  useEffect(() => {
-    auth.onAuthStateChanged((userCred) => {
-      console.log(userCred);
-    });
-  });
+  const { user, setUser } = useContext(userContext);
 
-  function handleGoogleSignIn() {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-        setUsername(user.displayName);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.customData.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-      });
-  }
+  useEffect(() => {
+    // log user in and create auth token
+    logUserIn(setUser);
+
+    // verify auth token
+    const authorized = checkUserToken();
+    if (!authorized) {
+      localStorage.clear();
+      setUser((user) => ({ ...user, loggedIn: false }));
+    }
+  }, []);
 
   function handleUsernameChange(e) {
     e.preventDefault();
     setUsername(e.target.value);
   }
 
-  function handleSubmit(e) {
+  function handleSignUp(e) {
     e.preventDefault();
     const user = auth.currentUser;
     if (!user) {
       console.log("no user");
       return;
     }
-    fetch("http://localhost:3001/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    axios
+      .post("http://localhost:3001/api/signup", {
         username: username,
         email: user.email,
         userId: user.uid,
-      }),
-    }).then((result) => console.log(result));
+      })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
   }
 
   return (
     <>
-      {loggedIn ? (
+      {user.loggedIn ? (
         <div>logged in</div>
       ) : (
         <>
           <h1>Sign up</h1>
-          <form onSubmit={handleSubmit}>
-            <button onClick={handleGoogleSignIn}>login with google</button>
+          <form onSubmit={handleSignUp}>
+            <button
+              onClick={() => {
+                const username = handleGoogleSignIn(setUser);
+                username !== " " && setUsername(username);
+              }}
+            >
+              login with google
+            </button>
             <input value={username} onChange={handleUsernameChange}></input>
             <button type="submit">submit</button>
           </form>
 
           <h1>Sign in</h1>
-          <button>Button</button>
+          <button onClick={() => handleGoogleSignIn(setUser)}>Button</button>
         </>
       )}
+      <button
+        onClick={(e) =>
+          !handleGoogleLogout(e) &&
+          setUser((user) => ({ ...user, loggedIn: false }))
+        }
+      >
+        logout
+      </button>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <Link to={"/private-game"}>
           <button>Private Game</button>

@@ -6,12 +6,15 @@ const cors = require("cors");
 const users = require("./users");
 const game = require("./game");
 
-const server = http.createServer(app);
-
 app.use(cors({ origin: "*" }));
+app.options("*", cors());
 app.use(express.json());
 
+const server = http.createServer(app);
+
 app.post("/api/signup", users.signupUser);
+app.get("/api/get-users", users.getUsers);
+app.get("/api/check-auth", users.checkUserAuth);
 app.get("/", (req, res) => {
   return res.send("success");
 });
