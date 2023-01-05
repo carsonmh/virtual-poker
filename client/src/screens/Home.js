@@ -6,15 +6,11 @@ import { auth } from "../config/firebase-config";
 import axios from "axios";
 
 import userContext from "../contexts/user/userContext";
-import {
-  checkUserToken,
-  handleGoogleSignIn,
-  logUserIn,
-  handleGoogleLogout,
-} from "../auth/auth";
+import { checkUserToken, logUserIn } from "../auth/auth";
 import LogInWithGoogleButton from "../components/home/LogInWithGoogleButton";
 import InputField from "../components/home/InputField";
 import { useNavigate } from "react-router";
+import PokerBackground from "../assets/9e071a09af668c11512375ab1b8bdb3b.jpeg";
 
 const StyledForm = styled.form`
   display: flex;
@@ -86,7 +82,7 @@ function Home() {
   useEffect(() => {
     setLoggedInWithGoogle(false);
     if (user.loggedIn) {
-      return navigate("/Dashboard");
+      return navigate("/dashboard");
     }
   }, [user.loggedIn]);
 
@@ -96,8 +92,9 @@ function Home() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        height: "100%",
+        height: "100vh",
         justifyContent: "center",
+        backgroundImage: `url(${PokerBackground})`,
       }}
     >
       <>
@@ -105,7 +102,7 @@ function Home() {
           <div>
             <h1 style={{ fontWeight: "bold", fontSize: "30px" }}>Hey there!</h1>
             <p style={{ fontSize: "14px" }}>
-              Please sign in with google and we'll help you get you signed up if
+              Please sign in with google and we'll help you create an account if
               needed
             </p>
           </div>

@@ -3,6 +3,13 @@ import { Link } from "react-router-dom";
 import userContext from "../contexts/user/userContext";
 import { handleGoogleLogout } from "../auth/auth";
 import { useNavigate } from "react-router";
+import styled from "styled-components";
+
+const StyledButton = styled.button`
+  background: white;
+  border-radius: 30px;
+  padding: 10px;
+`;
 
 function Dashboard() {
   const { user, setUser } = useContext(userContext);
@@ -17,12 +24,24 @@ function Dashboard() {
     <>
       <button onClick={(e) => !handleGoogleLogout(e, setUser)}>logout</button>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <Link to={"/private-game"}>
-          <button>Private Game</button>
-        </Link>
-        <Link>
-          <button>Online Multiplayer</button>
-        </Link>
+        <h1>Elo: {user.points}</h1>
+        <div
+          style={{
+            alignItems: "center",
+            background: "blue",
+            display: "flex",
+            flexDirection: "column",
+            height: "100px",
+            justifyContent: "space-between",
+          }}
+        >
+          <Link to={"/private-game"}>
+            <StyledButton>Private Game</StyledButton>
+          </Link>
+          <Link>
+            <StyledButton>Online Multiplayer</StyledButton>
+          </Link>
+        </div>
       </div>
     </>
   );
