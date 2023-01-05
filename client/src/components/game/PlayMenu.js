@@ -21,7 +21,7 @@ const PlayMenuWrapper = styled.div`
 `;
 
 const StyledButton = styled.button`
-  background: rgba(0, 255, 0, 0.2);
+  background: rgba(85, 160, 110, 0.6);
   padding: 2px;
   color: white;
   width: 100px;
@@ -55,7 +55,7 @@ const RaiseInput = styled.input`
   padding-right: 5px;
   text-align: right;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  background: green;
+  background: rgba(85, 160, 110, 0.4);
   color: white;
 `;
 
@@ -224,10 +224,20 @@ function PlayMenu({
           marginLeft: "50px",
         }}
       >
-        <StyledButton onClick={() => foldHandler()}>Fold</StyledButton>
-        <StyledButton onClick={() => callHandler()}>
-          Call{" "}
-          <span style={{ color: "yellow", marginLeft: "7px" }}>
+        <StyledButton
+          style={{ background: "rgb(156, 60, 53)" }}
+          onClick={() => foldHandler()}
+        >
+          Fold
+        </StyledButton>
+        <StyledButton
+          style={{ background: "rgb(69, 91, 173)" }}
+          onClick={() => callHandler()}
+        >
+          Call
+          <span
+            style={{ color: "yellow", marginLeft: functional ? "7px" : "0" }}
+          >
             {functional ? increment : ""}
           </span>
         </StyledButton>
@@ -254,7 +264,7 @@ function PlayMenu({
           >
             <SliderTrack bg="red.100">
               <Box position="relative" right={10} />
-              <SliderFilledTrack bg="green" />
+              <SliderFilledTrack bg="#85BF99" />
             </SliderTrack>
             <SliderThumb boxSize={6} />
           </Slider>

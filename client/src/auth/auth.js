@@ -3,7 +3,7 @@ import { auth } from "../config/firebase-config";
 import axios from "axios";
 import { signOut } from "firebase/auth";
 
-function handleGoogleSignIn(setUser) {
+function handleGoogleSignIn(setUser, setLoggedInWithGoogle) {
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider)
     .then((result) => {
@@ -13,16 +13,17 @@ function handleGoogleSignIn(setUser) {
       axios
         .get("http://localhost:3001/api/get-users")
         .then((result) => {
+          setLoggedInWithGoogle(true);
           const resData = result.data[user.uid];
-          setUser((user) => ({ ...user, loggedIn: true }));
-          if (resData) {
-            return;
+          if (!resData || !resData.username) {
+            return false;
           }
+          setUser((user) => ({ ...user, loggedIn: true }));
+          return true;
         })
         .catch((error) => {
           console.log(error);
         });
-      return user.displayName;
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -34,12 +35,13 @@ function handleGoogleSignIn(setUser) {
     });
 }
 
-function handleGoogleLogout(e) {
+function handleGoogleLogout(e, setUser) {
   e.preventDefault();
+  localStorage.clear();
   signOut(auth)
     .then(() => {
-      localStorage.clear();
       console.log("signed out");
+      setUser((user) => ({ ...user, loggedIn: false }));
       return false;
     })
     .catch((error) => {
@@ -55,14 +57,17 @@ function logUserIn(setUser) {
         .getIdToken()
         .then((token) => {
           localStorage.setItem("user-token", "Bearer " + token);
-          setUser((user) => ({ ...user, loggedIn: true }));
         })
         .catch((error) => console.log(error));
       axios
         .get("http://localhost:3001/api/get-users")
         .then((result) => {
           const resData = result.data[uid];
-          setUser((user) => ({ ...user, ...resData }));
+          if (!resData) {
+            return false;
+          }
+          setUser((user) => ({ ...user, ...resData, loggedIn: true }));
+          return true;
         })
         .catch((error) => {
           console.log(error);

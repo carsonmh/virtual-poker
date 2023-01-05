@@ -241,7 +241,7 @@ function Game({ roomCode, socket, users, currUser }) {
 
   return (
     <GameWrapper>
-      <div style={{ marginBottom: "30px" }}>
+      <div style={{ height: "75px" }}>
         <div>View from player {playerNumber + 1}</div>
         <div>Room code: {roomCode}</div>
         <div>{currentTurn}'s turn</div>

@@ -1,12 +1,10 @@
 import { useState, useContext, useEffect } from "react";
-import io from "socket.io-client";
+import axios from "axios";
+
 import Game from "./Game";
 import { generateRoomCode } from "../utils/Utils";
 import { auth } from "../config/firebase-config";
-import { logUserIn } from "../auth/auth";
-import axios from "axios";
-
-import UserContext from "../contexts/userContext";
+import UserContext from "../contexts/user/userContext";
 
 function PrivateGame({ socket }) {
   const [roomCode, setRoomCode] = useState("");

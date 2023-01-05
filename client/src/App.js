@@ -1,27 +1,23 @@
-import React, { useState, useEffect, useContext } from "react";
+import React from "react";
 import "./App.css";
 import io from "socket.io-client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import axios from "axios";
 
 import PrivateGame from "./screens/PrivateGame";
 import Home from "./screens/Home";
-import Login from "./screens/Login";
-import Signup from "./screens/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { logUserIn } from "./auth/auth";
-import { auth } from "./config/firebase-config";
 
-import userContext from "./contexts/userContext";
-import UserProvider from "./contexts/UserProvider";
+import UserProvider from "./contexts/user/UserProvider";
+import Dashboard from "./screens/Dashboard";
 
 const socket = io.connect("http://localhost:3001");
 
 function App() {
-  const { user, setUser } = useContext(userContext);
   return (
     <UserProvider>
-      <div style={{ background: "green", height: "100%", minHeight: "100vh" }}>
+      <div
+        style={{ background: "#2F814B", height: "100%", minHeight: "100vh" }}
+      >
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -30,6 +26,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PrivateGame socket={socket} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={"/dashboard"}
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
                 </ProtectedRoute>
               }
             />
