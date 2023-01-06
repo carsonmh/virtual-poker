@@ -6,11 +6,13 @@ import { auth } from "../config/firebase-config";
 import axios from "axios";
 
 import userContext from "../contexts/user/userContext";
-import { checkUserToken, logUserIn } from "../auth/auth";
+import { checkUserToken, handleGoogleLogout, logUserIn } from "../auth/auth";
 import LogInWithGoogleButton from "../components/home/LogInWithGoogleButton";
 import InputField from "../components/home/InputField";
 import { useNavigate } from "react-router";
 import PokerBackground from "../assets/9e071a09af668c11512375ab1b8bdb3b.jpeg";
+
+import { generateRoomCode } from "../utils/Utils";
 
 const StyledForm = styled.form`
   display: flex;
@@ -34,16 +36,28 @@ const SubmitButton = styled.button`
 `;
 
 function Home() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(null);
   const [loggedInWithGoogle, setLoggedInWithGoogle] = useState(false);
   const navigate = useNavigate();
 
   const { user, setUser } = useContext(userContext);
 
   useEffect(() => {
+    if (localStorage.getItem("user-token")) {
+      return navigate("/dashboard");
+    }
+  }, []);
+
+  useEffect(() => {
+    setLoggedInWithGoogle(false);
+    if (user.loggedIn) {
+      return navigate("/dashboard");
+    }
+  }, [user.loggedIn]);
+
+  useEffect(() => {
     // log user in and create auth token
     logUserIn(setUser);
-
     // verify auth token
     const authorized = checkUserToken();
     if (!authorized) {
@@ -67,7 +81,7 @@ function Home() {
     setUser((user) => ({ ...user, loggedIn: true }));
     axios
       .post("http://localhost:3001/api/signup", {
-        username: username,
+        username: username ? username : user.displayName + generateRoomCode(),
         email: user.email,
         userId: user.uid,
       })
@@ -78,13 +92,6 @@ function Home() {
         console.log(error.response.data);
       });
   }
-
-  useEffect(() => {
-    setLoggedInWithGoogle(false);
-    if (user.loggedIn) {
-      return navigate("/dashboard");
-    }
-  }, [user.loggedIn]);
 
   return (
     <div
@@ -124,7 +131,10 @@ function Home() {
                 alignItems: "center",
               }}
             >
-              <InputField onChange={handleUsernameChange}></InputField>
+              <InputField
+                placeholder="Type your username"
+                onChange={handleUsernameChange}
+              ></InputField>
               <SubmitButton type="submit">submit</SubmitButton>
             </div>
           ) : (

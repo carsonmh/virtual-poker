@@ -1,7 +1,6 @@
-import React from "react";
 import styled from "styled-components";
 
-const StyledInput = styled.input`
+const InputField = styled.input`
   width: 250px;
   margin: 20px;
   border: 2px solid rgba(0, 0, 0, 0.2);
@@ -14,13 +13,5 @@ const StyledInput = styled.input`
     outline: none;
   }
 `;
-function InputField({ value, setItem }) {
-  return (
-    <StyledInput
-      placeholder={"Type your username"}
-      onChange={setItem}
-    ></StyledInput>
-  );
-}
 
 export default InputField;

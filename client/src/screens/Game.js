@@ -3,9 +3,10 @@ import PlayMenu from "../components/game/PlayMenu";
 import { makeDeck } from "../components/game/Deck";
 import { determineWinner } from "../utils/GameFunctions";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import styled from "styled-components";
+import userContext from "../contexts/user/userContext";
 
 const GameWrapper = styled.div`
   display: grid;
@@ -13,7 +14,7 @@ const GameWrapper = styled.div`
   align-items: space-between;
 `;
 
-function Game({ roomCode, socket, users, currUser }) {
+function Game({ roomCode, socket, users }) {
   const initialState = {
     playerNumber: 0,
     p1Chips: 0,
@@ -63,6 +64,8 @@ function Game({ roomCode, socket, users, currUser }) {
   const [raiseAmount, setRaiseAmount] = useState(0);
   const [isCurrentTurn, setIsCurrentTurn] = useState("");
 
+  const { user, setUser } = useContext(userContext);
+
   useEffect(
     () => {
       if (
@@ -81,7 +84,7 @@ function Game({ roomCode, socket, users, currUser }) {
   useEffect(() => {
     setGameState((gameState) => ({
       ...gameState,
-      playerNumber: currUser.playerNumber,
+      playerNumber: user.playerNumber,
     }));
   }, []);
 

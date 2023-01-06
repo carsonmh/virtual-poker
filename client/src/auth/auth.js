@@ -35,13 +35,13 @@ function handleGoogleSignIn(setUser, setLoggedInWithGoogle) {
     });
 }
 
-function handleGoogleLogout(e, setUser) {
-  e.preventDefault();
+function handleGoogleLogout(setUser) {
   localStorage.clear();
   signOut(auth)
     .then(() => {
       console.log("signed out");
       setUser((user) => ({ ...user, loggedIn: false }));
+      localStorage.clear();
       return false;
     })
     .catch((error) => {
@@ -52,6 +52,7 @@ function handleGoogleLogout(e, setUser) {
 function logUserIn(setUser) {
   auth.onAuthStateChanged((userCred) => {
     if (userCred) {
+      console.log("user cred found");
       const uid = userCred.uid;
       userCred
         .getIdToken()
@@ -72,6 +73,8 @@ function logUserIn(setUser) {
         .catch((error) => {
           console.log(error);
         });
+    } else {
+      handleGoogleLogout(setUser);
     }
   });
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import "./App.css";
 import io from "socket.io-client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -6,9 +6,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateGame from "./screens/PrivateGame";
 import Home from "./screens/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import { auth } from "./config/firebase-config";
 import UserProvider from "./contexts/user/UserProvider";
 import Dashboard from "./screens/Dashboard";
+import userContext from "./contexts/user/userContext";
 
 const socket = io.connect("http://localhost:3001");
 

@@ -129,7 +129,10 @@ function PlayMenu({
     () => {
       if (allIn === true && turnCount < 7) {
         setTimeout(
-          () => socket.emit("game_state_change", { turnCount: turnCount + 2 }),
+          () =>
+            socket.emit("game_state_change", {
+              turnCount: turnCount + 2,
+            }),
           1000
         );
       }
@@ -171,6 +174,7 @@ function PlayMenu({
     if (p1ChipsTemp === 0 || p2ChipsTemp === 0) {
       setFunctional(false);
       setAllIn(true);
+      socket.emit("game_state_change", { currentTurn: "none" });
     }
   }
 

@@ -35,10 +35,6 @@ io.on("connection", (socket) => {
     game.changeGameState(socket, io, state);
   });
 
-  socket.on("create_room", async (data) => {
-    game.createRoom(socket, io, data);
-  });
-
   socket.on("join_room", async (data) => {
     game.joinRoom(socket, io, data);
   });

@@ -119,7 +119,6 @@ async function getUsers(req, res) {
 
 function checkUserAuth(req, res) {
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
   let token;
   if (authHeader && authHeader.startsWith("Bearer")) {
     token = authHeader.split(" ")[1];

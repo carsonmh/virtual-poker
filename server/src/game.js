@@ -21,35 +21,16 @@ function changeGameState(socket, io, state) {
   io.to(room).emit("game_state_change", state);
 }
 
-async function createRoom(socket, io, data) {
-  console.log(data);
-  const connectedSockets = io.sockets.adapter.rooms.get(data.code);
-  if (connectedSockets && connectedSockets.size === 2) {
-    socket.emit("room_join_error", { error: "room is full" });
-  } else {
-    socket.data = {
-      playerNumber: 0,
-      roomCode: data.code,
-      username: data.username,
-    };
-    await socket.join(data.code);
-    io.to(socket.data.roomCode).emit("room_joined", {
-      user: socket.data,
-      allUsers: await getUsersInRoom(io, socket.data.roomCode),
-    });
-  }
-}
-
 async function joinRoom(socket, io, data) {
   const connectedSockets = io.sockets.adapter.rooms.get(data.code);
-  if (connectedSockets === undefined) {
+  if (!data.createRoom && connectedSockets === undefined) {
     socket.emit("room_join_error", { message: "room is not found" });
-  } else if (connectedSockets.size === 2) {
+  } else if (connectedSockets && connectedSockets.size === 2) {
     socket.emit("room_join_error", { message: "room is full" });
   } else {
     await socket.join(data.code);
     socket.data = {
-      playerNumber: 1,
+      playerNumber: data.createRoom ? 0 : 1,
       roomCode: data.code,
       username: data.username,
     };
@@ -57,13 +38,14 @@ async function joinRoom(socket, io, data) {
       user: socket.data,
       allUsers: await getUsersInRoom(io, socket.data.roomCode),
     });
-    const room = getSocketGameRoom(socket);
-    socket.to(room).emit("game_starting");
+    if (!data.createRoom) {
+      const room = getSocketGameRoom(socket);
+      socket.to(room).emit("game_starting");
+    }
   }
 }
 
 module.exports = {
   changeGameState,
-  createRoom,
   joinRoom,
 };
