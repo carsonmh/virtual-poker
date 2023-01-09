@@ -86,26 +86,40 @@ function Game({ roomCode, socket, users }) {
       ...gameState,
       playerNumber: user.playerNumber,
     }));
+
+    if (users.length > 1) {
+      setGameState((gameState) => ({
+        ...gameState,
+        playerNumber: user.playerNumber,
+      }));
+      if (!gameStarted) {
+        startGame();
+      }
+    }
   }, []);
+
+  function startGame() {
+    const deck = makeDeck();
+    const tp1Cards = deck.splice(0, 2);
+    const tp2Cards = deck.splice(0, 2);
+    const tmainDeck = deck.splice(0, 5);
+
+    socket.emit("game_state_change", {
+      p1Chips: 500,
+      p2Chips: 500,
+      gameStarted: true,
+      turnCount: 0,
+      pot: 0,
+      p1Cards: [...tp1Cards],
+      p2Cards: [...tp2Cards],
+      mainDeck: [...tmainDeck],
+      currentTurn: "p1",
+    });
+  }
 
   socket.on("game_starting", () => {
     if (gameStarted === false) {
-      const deck = makeDeck();
-      const tp1Cards = deck.splice(0, 2);
-      const tp2Cards = deck.splice(0, 2);
-      const tmainDeck = deck.splice(0, 5);
-
-      socket.emit("game_state_change", {
-        p1Chips: 500,
-        p2Chips: 500,
-        gameStarted: true,
-        turnCount: 0,
-        pot: 0,
-        p1Cards: [...tp1Cards],
-        p2Cards: [...tp2Cards],
-        mainDeck: [...tmainDeck],
-        currentTurn: "p1",
-      });
+      startGame();
     }
   });
 

@@ -19,7 +19,7 @@ const StyledForm = styled.form`
   flex-direction: column;
   align-items: center;
   width: 300px;
-  height: 220px;
+  height: 300px;
   background: white;
   border-radius: 5px;
   justify-content: space-between;

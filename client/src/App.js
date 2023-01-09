@@ -1,15 +1,14 @@
 import React, { useContext, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import io from "socket.io-client";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import PrivateGame from "./screens/PrivateGame";
 import Home from "./screens/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { auth } from "./config/firebase-config";
 import UserProvider from "./contexts/user/UserProvider";
 import Dashboard from "./screens/Dashboard";
-import userContext from "./contexts/user/userContext";
+import OnlineGame from "./screens/OnlineGame";
 
 const socket = io.connect("http://localhost:3001");
 
@@ -35,6 +34,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={"/online-match"}
+              element={
+                <ProtectedRoute>
+                  <OnlineGame socket={socket} />
                 </ProtectedRoute>
               }
             />

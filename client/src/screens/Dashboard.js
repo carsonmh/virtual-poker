@@ -4,6 +4,7 @@ import userContext from "../contexts/user/userContext";
 import { handleGoogleLogout, logUserIn } from "../auth/auth";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import { checkUserToken } from "../auth/auth";
 
 const StyledButton = styled.button`
   background: white;
@@ -44,7 +45,7 @@ function Dashboard() {
           <Link to={"/private-game"}>
             <StyledButton>Private Game</StyledButton>
           </Link>
-          <Link>
+          <Link to={"/online-match"}>
             <StyledButton>Online Multiplayer</StyledButton>
           </Link>
         </div>
