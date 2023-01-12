@@ -13,6 +13,7 @@ app.use(express.json());
 const server = http.createServer(app);
 
 app.post("/api/signup", users.signupUser);
+app.get("/api/update-elo", users.updateUserElo);
 app.get("/api/get-users", users.getUsers);
 app.get("/api/check-auth", users.checkUserAuth);
 app.get("/", (req, res) => {
@@ -26,9 +27,18 @@ const io = new Server(server, {
   },
 });
 
+const q = [];
+
 io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`player ${socket} disconnected`);
+    const index = q.indexOf(socket);
+    if (index > -1) {
+      q.splice(index, 1);
+    }
+    if (socket.data && socket.data.roomCode) {
+      io.to(socket.data.roomCode).emit("opponent_disconnected");
+    }
   });
 
   socket.on("game_state_change", (state) => {
@@ -37,6 +47,10 @@ io.on("connection", (socket) => {
 
   socket.on("join_room", async (data) => {
     game.joinRoom(socket, io, data);
+  });
+
+  socket.on("join_matchmaking", (data) => {
+    game.joinMatchmaking(socket, io, data, q);
   });
 });
 

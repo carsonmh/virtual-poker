@@ -14,8 +14,26 @@ const admin = require("./config/firebase-config");
 
 const db = getFirestore();
 
+function updateUserElo(req, res) {
+  try {
+    const { userId, newElo } = req.body;
+    if (!userId) {
+      return;
+    }
+    const userRef = db.doc(`users/${userId}`);
+    userRef.update({ elo: newElo });
+  } catch (e) {
+    console.error(e);
+    res.send({
+      success: false,
+      message: "failed to change user's elo",
+      error: e.message,
+    });
+  }
+}
+
 function signupUser(req, res) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "http://10.0.0.145:3000");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -50,7 +68,7 @@ function signupUser(req, res) {
                 db.doc(`users/${userId}`).set({
                   email: email,
                   username: username,
-                  points: 0,
+                  points: 700,
                   gamesPlayed: 0,
                 });
               }
@@ -66,37 +84,6 @@ function signupUser(req, res) {
     });
   }
 }
-
-// async function getUserById(req, res) {
-//   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   try {
-//     const { userId } = req.body;
-//     const userRef = db.collection("users").doc(userId);
-//     const doc = await userRef.get();
-//     if (!doc.exists) {
-//       console.log("user not found");
-//       res.send({
-//         success: false,
-//         message: "user not found",
-//         error: error.message,
-//       });
-//     } else {
-//       console.log(doc.data());
-//       res.send(doc.data());
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.send({
-//       success: false,
-//       message: "failed to get user",
-//       error: error.message,
-//     });
-//   }
-// }
 
 async function getUsers(req, res) {
   try {
@@ -128,24 +115,27 @@ function checkUserAuth(req, res) {
       message: "unauthorized",
     });
   }
-  try {
-    const decodeValue = admin.auth().verifyIdToken(token);
-    if (decodeValue) {
-      res.send({
-        message: "success",
+  admin
+    .auth()
+    .verifyIdToken(token)
+    .then((decodedToken) => {
+      if (decodedToken) {
+        return res.status(200).send({
+          message: "Success",
+        });
+      } else {
+        return res.status(401).send({
+          message: "Unauthorized: Invalid token",
+        });
+      }
+    })
+    .catch((error) => {
+      return res.status(401).send({
+        success: false,
+        message: "Unauthorized: Failed to decode token",
+        error: error.message,
       });
-    } else {
-      res.send({
-        message: "unauthorized",
-      });
-    }
-  } catch (error) {
-    res.send({
-      success: false,
-      message: "failed to decode token",
-      error: error.message,
     });
-  }
 }
 
-module.exports = { signupUser, getUsers, checkUserAuth };
+module.exports = { signupUser, getUsers, checkUserAuth, updateUserElo };

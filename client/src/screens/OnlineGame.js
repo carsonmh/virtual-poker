@@ -12,6 +12,7 @@ function OnlineGame({ socket }) {
   const { user, setUser } = useContext(userContext);
   useEffect(() => {
     logUserIn(setUser);
+
     socket.on("match_found", (data) => {
       setMatchFound(true);
       setRoomCode(data.user.roomCode);

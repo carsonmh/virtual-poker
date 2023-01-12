@@ -1,17 +1,40 @@
+import React, { useState, useEffect, useContext } from "react";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+
 import Board from "../components/game/Board";
 import PlayMenu from "../components/game/PlayMenu";
 import { makeDeck } from "../components/game/Deck";
-import { determineWinner } from "../utils/GameFunctions";
-
-import React, { useState, useEffect, useContext } from "react";
-
-import styled from "styled-components";
+import {
+  determineWinner,
+  getUserFromPlayerString,
+  computeEloChange,
+} from "../utils/Utils";
 import userContext from "../contexts/user/userContext";
+import {
+  startGame,
+  gameTurnOne,
+  resetGameState,
+  endGame,
+} from "../utils/GameFunctions";
 
 const GameWrapper = styled.div`
   display: grid;
   text-align: center;
   align-items: space-between;
+`;
+
+const GameOverPopup = styled.div`
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  width: 375px;
+  height: 275px;
+  background: white;
+  color: black;
+  box-shadow: 0px 0px 7px 4px rgba(0, 0, 0, 0.2);
 `;
 
 function Game({ roomCode, socket, users }) {
@@ -36,6 +59,7 @@ function Game({ roomCode, socket, users }) {
     gameOver: false,
     startingPlayer: "",
     testWord: "",
+    showCards: false,
   };
   const [gameState, setGameState] = useState(initialState);
   const {
@@ -59,10 +83,14 @@ function Game({ roomCode, socket, users }) {
     gameOver,
     startingPlayer,
     testWord,
+    showCards,
   } = gameState;
 
   const [raiseAmount, setRaiseAmount] = useState(0);
   const [isCurrentTurn, setIsCurrentTurn] = useState("");
+  const [functional, setFunctional] = useState(true);
+  const [showPopUp, setShowPopUp] = useState(true);
+  const [opponentDisconnected, setOpponentDisconnected] = useState(false);
 
   const { user, setUser } = useContext(userContext);
 
@@ -93,33 +121,14 @@ function Game({ roomCode, socket, users }) {
         playerNumber: user.playerNumber,
       }));
       if (!gameStarted) {
-        startGame();
+        startGame(socket);
       }
     }
   }, []);
 
-  function startGame() {
-    const deck = makeDeck();
-    const tp1Cards = deck.splice(0, 2);
-    const tp2Cards = deck.splice(0, 2);
-    const tmainDeck = deck.splice(0, 5);
-
-    socket.emit("game_state_change", {
-      p1Chips: 500,
-      p2Chips: 500,
-      gameStarted: true,
-      turnCount: 0,
-      pot: 0,
-      p1Cards: [...tp1Cards],
-      p2Cards: [...tp2Cards],
-      mainDeck: [...tmainDeck],
-      currentTurn: "p1",
-    });
-  }
-
   socket.on("game_starting", () => {
     if (gameStarted === false) {
-      startGame();
+      startGame(socket);
     }
   });
 
@@ -127,88 +136,85 @@ function Game({ roomCode, socket, users }) {
     setGameState((gameState) => ({ ...gameState, ...state }));
   });
 
+  socket.on("opponent_disconnected", () => {
+    setGameState((gameState) => ({
+      ...gameState,
+      gameOver: true,
+    }));
+    setOpponentDisconnected(true);
+  });
+
   useEffect(() => {
-    setRaiseAmount(BB);
     switch (turnCount) {
       case 0:
-        if (p1Chips === 0 || p2Chips === 0) {
-          socket.emit("game_state_change", { gameOver: true });
-        }
-        const newGameState = {
-          p1Chips: currentTurn === "p1" ? p1Chips - SB : p1Chips - BB,
-          p2Chips: currentTurn === "p1" ? p2Chips - BB : p2Chips - SB,
-          pot: 0,
-          increment: SB,
-          p1Bet: currentTurn === "p1" ? SB : BB,
-          p2Bet: currentTurn === "p1" ? BB : SB,
-          startingPlayer: currentTurn,
-        };
-        if (currentTurn === "p1" && playerNumber === 0) {
-          socket.emit("game_state_change", newGameState);
-        } else if (currentTurn === "p2" && playerNumber === 1) {
-          socket.emit("game_state_change", newGameState);
-        }
+        // if (p1Chips === 0 || p2Chips === 0) {
+        //   socket.emit("game_state_change", { gameOver: true });
+        // }
+        if (gameOver) break;
+        gameTurnOne(
+          socket,
+          currentTurn,
+          p1Chips,
+          p2Chips,
+          SB,
+          BB,
+          playerNumber
+        );
         break;
-      // case 2:
-      //   setTestWord("flipping the flop");
-      //   break;
-      // case 4:
-      //   setTestWord("flipping the turn");
-      //   break;
-      // case 6:
-      //   setTestWord("flipping the river");
-      //   break;
       case 8:
-        if (p1Chips === 0 || p2Chips === 0) {
-          socket.emit("game_state_change", { gameOver: true });
-        }
-        if (playerNumber === 0) {
-          socket.emit("game_state_change", {
-            restart: true,
-            winner: determineWinner(p1Cards, p2Cards, mainDeck),
-          });
-        }
+        setGameState((gameState) => ({ ...gameState, showCards: true }));
+        setFunctional(false);
+        setTimeout(() => {
+          if (
+            p1Chips === 0 ||
+            (p2Chips === 0 &&
+              determineWinner(p1Cards, p2Cards, mainDeck) !== "tie")
+          ) {
+            socket.emit("game_state_change", { gameOver: true });
+          } else {
+            setGameState((gameState) => ({ ...gameState, showCards: false }));
+          }
+          if (playerNumber === 0) {
+            socket.emit("game_state_change", {
+              restart: true,
+              winner: determineWinner(p1Cards, p2Cards, mainDeck),
+            });
+          }
+        }, 3000);
         break;
     }
   }, [turnCount]);
-
-  function resetGameState(
-    p1Chips,
-    p2Chips,
-    pot,
-    currentTurn,
-    p1Cards,
-    p2Cards,
-    mainDeck
-  ) {
-    socket.emit("game_state_change", {
-      p1Chips: p1Chips,
-      p2Chips: p2Chips,
-      pot: 0,
-      currentTurn: currentTurn,
-      p1Cards: [...p1Cards],
-      p2Cards: [...p2Cards],
-      mainDeck: [...mainDeck],
-      turnCount: 0,
-      restart: false,
-      winner: "none",
-      p1Bet: 0,
-      p2Bet: 0,
-    });
-  }
 
   useEffect(() => {
     const deck = makeDeck();
     const tp1Cards = deck.splice(0, 2);
     const tp2Cards = deck.splice(0, 2);
     const tmainDeck = deck.splice(0, 5);
+    if (gameOver) {
+      switch (winner) {
+        case "p1":
+          socket.emit("game_state_change", {
+            p1Chips: 1000,
+            pot: 0,
+            p2Chips: 0,
+          });
+        case "p2":
+          socket.emit("game_state_change", {
+            p2Chips: 1000,
+            p1Chips: 0,
+            pot: 0,
+          });
+      }
+    }
     if (
-      restart === true &&
+      restart &&
+      !gameOver &&
       (winner === "p1" || winner === "p2" || winner === "tie")
     )
       switch (winner) {
         case "p1":
           resetGameState(
+            socket,
             p1Chips + pot + p2Bet + p1Bet,
             p2Chips,
             pot,
@@ -220,6 +226,7 @@ function Game({ roomCode, socket, users }) {
           break;
         case "p2":
           resetGameState(
+            socket,
             p1Chips,
             p2Chips + pot + p2Bet + p1Bet,
             pot,
@@ -231,6 +238,7 @@ function Game({ roomCode, socket, users }) {
           break;
         case "tie":
           resetGameState(
+            socket,
             p1Chips + pot / 2,
             p2Chips + pot / 2,
             pot,
@@ -245,24 +253,58 @@ function Game({ roomCode, socket, users }) {
   }, [restart]);
 
   if (gameOver === true) {
-    return (
-      <div>
-        game over. Winner: {determineWinner(p1Cards, p2Cards, mainDeck)}
-      </div>
+    let isWinner = endGame(
+      playerNumber,
+      opponentDisconnected,
+      p1Cards,
+      p2Cards,
+      mainDeck,
+      users,
+      user
     );
+    if (isWinner === null) {
+      return <div>There was an error</div>;
+    }
+    console.log(isWinner);
+    //   axios.post("http://localhost:3001/api/update-elo", {
+    //     userId: user.uid,
+    //     elo: eloChange
+    //   })
+    // return <div>game over. Winner: bruh</div>;
   }
 
   if (gameStarted === false) {
-    return <div>waiting room, code: {roomCode}</div>;
+    return <div>waiting room, code: {user.code}</div>;
   }
 
   return (
     <GameWrapper>
-      <div style={{ height: "75px" }}>
-        <div>View from player {playerNumber + 1}</div>
-        <div>Room code: {roomCode}</div>
-        <div>{currentTurn}'s turn</div>
-      </div>
+      {!gameOver ? (
+        <div style={{ height: "75px" }}>
+          <div>View from player {playerNumber + 1}</div>
+          <div>Room code: {user.code}</div>
+          <div>
+            {currentTurn}
+            's turn
+          </div>
+        </div>
+      ) : (
+        <div style={{ height: "75px" }}>
+          <div>Game Over</div>
+          <div>
+            Winner:{" "}
+            {
+              getUserFromPlayerString(
+                determineWinner(p1Cards, p2Cards, mainDeck),
+                users
+              ).username
+            }
+          </div>
+          <div>
+            <Link to={"/dashboard"}>Leave</Link>
+          </div>
+        </div>
+      )}
       <Board
         playerNumber={playerNumber}
         pot={pot}
@@ -277,6 +319,7 @@ function Game({ roomCode, socket, users }) {
         p2Bet={p2Bet}
         currentTurn={currentTurn}
         gameState={gameState}
+        showCards={showCards}
       />
       <PlayMenu
         currentTurn={currentTurn}
@@ -295,7 +338,24 @@ function Game({ roomCode, socket, users }) {
         gameStarted={gameStarted}
         startingPlayer={startingPlayer}
         SB={SB}
+        functional={functional}
+        setFunctional={setFunctional}
       />
+      {gameOver && showPopUp ? (
+        <GameOverPopup>
+          <div
+            style={{
+              textAlign: "right",
+            }}
+            onClick={() => {
+              setShowPopUp(false);
+            }}
+          >
+            X
+          </div>
+          Game Over
+        </GameOverPopup>
+      ) : null}
     </GameWrapper>
   );
 }

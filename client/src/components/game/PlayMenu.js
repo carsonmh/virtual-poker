@@ -79,18 +79,24 @@ function PlayMenu({
   mainDeck,
   startingPlayer,
   SB,
+  functional,
+  setFunctional,
 }) {
-  const [functional, setFunctional] = useState(true);
   const [allIn, setAllIn] = useState(false);
   const [raiseButtonVisible, setRaiseButtonVisible] = useState(true);
+  const [raising, setRaising] = useState(false);
   let playerChips = [p1Chips, p2Chips];
-  let playerBets = [p1Bet, p2Bet];
+
+  useEffect(() => {
+    const maxBet = 10 + Math.max(p1Bet, p2Bet);
+    console.log(maxBet);
+    setRaiseAmount(maxBet);
+  }, [currentTurn, turnCount, p1Bet, p2Bet]);
 
   function canRaise() {
     if (
       raiseAmount % SB !== 0 ||
-      raiseAmount > Math.min(p1Chips, p2Chips) ||
-      raiseAmount + increment > playerChips[playerNumber]
+      raiseAmount > Math.min(p1Chips + p1Bet, p2Chips + p2Bet)
     ) {
       return false;
     } else {
@@ -128,6 +134,9 @@ function PlayMenu({
   useEffect(
     () => {
       if (allIn === true && turnCount < 7) {
+        socket.emit("game_state_change", {
+          showCards: true,
+        });
         setTimeout(
           () =>
             socket.emit("game_state_change", {
@@ -135,6 +144,9 @@ function PlayMenu({
             }),
           1000
         );
+      }
+      if (turnCount === 8) {
+        setAllIn(false);
       }
     },
     [allIn, turnCount],
@@ -145,13 +157,13 @@ function PlayMenu({
     if (!functional) {
       return;
     }
+    const increment = Math.abs(p1Bet - p2Bet);
     const gameState = {
       turnCount: turnCount + 1,
       currentTurn: currentTurn === "p1" ? "p2" : "p1",
       p1Chips: currentTurn === "p1" ? p1Chips - increment : p1Chips,
       p2Chips: currentTurn === "p2" ? p2Chips - increment : p2Chips,
       pot: turnCount % 2 === 0 ? pot + 0 : p1Bet + p2Bet + pot + increment,
-      increment: 0,
       p1Bet:
         turnCount % 2 === 0
           ? p1Bet + (currentTurn === "p1" ? increment : 0)
@@ -183,27 +195,31 @@ function PlayMenu({
     if (!functional || !canRaise()) {
       return;
     }
+    if (!raising) {
+      setRaising(true);
+      return;
+    }
     let turnIncrement = turnCount % 2 === 0 ? 1 : 0;
     if (currentTurn === "p1") {
       socket.emit("game_state_change", {
-        increment: raiseAmount,
         pot: pot,
         currentTurn: "p2",
-        p1Chips: p1Chips - increment - raiseAmount,
+        p1Chips: p1Chips - (raiseAmount - p1Bet),
         turnCount: turnCount + turnIncrement,
-        p1Bet: p1Bet + raiseAmount + increment,
+        p1Bet: raiseAmount,
       });
     } else if (currentTurn === "p2") {
       socket.emit("game_state_change", {
         increment: raiseAmount,
         pot: pot,
         currentTurn: "p1",
-        p2Chips: p2Chips - increment - raiseAmount,
+        p2Chips: p2Chips - (raiseAmount - p2Bet),
         turnCount: turnCount + turnIncrement,
-        p2Bet: p2Bet + raiseAmount + increment,
+        p2Bet: raiseAmount,
       });
     }
-    setRaiseAmount(BB);
+    setRaiseAmount(10 + Math.max(p1Bet, p2Bet));
+    setRaising(false);
   }
 
   function foldHandler() {
@@ -242,7 +258,7 @@ function PlayMenu({
           <span
             style={{ color: "yellow", marginLeft: functional ? "7px" : "0" }}
           >
-            {functional ? increment : ""}
+            {functional ? Math.abs(p1Bet - p2Bet) : ""}
           </span>
         </StyledButton>
       </div>
@@ -255,32 +271,36 @@ function PlayMenu({
           alignItems: "center",
         }}
       >
-        <SliderWrapper>
-          <Slider
-            onChange={(v) => {
-              setRaiseAmount(v);
-            }}
-            defaultValue={20}
-            min={10}
-            max={Math.min(p1Chips, p2Chips)}
-            step={SB}
-            value={raiseAmount}
-          >
-            <SliderTrack bg="red.100">
-              <Box position="relative" right={10} />
-              <SliderFilledTrack bg="#85BF99" />
-            </SliderTrack>
-            <SliderThumb boxSize={6} />
-          </Slider>
-        </SliderWrapper>
-        <RaiseInput
-          value={raiseAmount}
-          onChange={(v) => {
-            if (v.target.value && !isNaN(v.target.value)) {
-              setRaiseAmount(parseInt(v.target.value));
-            }
-          }}
-        />
+        {raising ? (
+          <>
+            <SliderWrapper>
+              <Slider
+                onChange={(v) => {
+                  setRaiseAmount(v);
+                }}
+                // defaultValue={10 + Math.max(p1Bet, p2Bet)}
+                min={10 + Math.max(p1Bet, p2Bet)}
+                max={Math.min(p1Chips + p1Bet, p2Chips + p2Bet)}
+                step={SB}
+                value={raiseAmount}
+              >
+                <SliderTrack bg="red.100">
+                  <Box position="relative" right={10} />
+                  <SliderFilledTrack bg="#85BF99" />
+                </SliderTrack>
+                <SliderThumb boxSize={6} />
+              </Slider>
+            </SliderWrapper>
+            <RaiseInput
+              value={raiseAmount}
+              onChange={(v) => {
+                if (v.target.value && !isNaN(v.target.value)) {
+                  setRaiseAmount(parseInt(v.target.value));
+                }
+              }}
+            />{" "}
+          </>
+        ) : null}
         <StyledButton
           style={{
             width: "125px",
@@ -289,12 +309,16 @@ function PlayMenu({
           onClick={(e) => raiseHandler(e)}
         >
           Raise{" "}
-          <span style={{ marginLeft: "5px" }}>{functional ? "to" : ""}</span>
-          <span style={{ color: "yellow", marginLeft: "7px" }}>
-            {functional
-              ? raiseAmount + increment + playerBets[playerNumber]
-              : ""}
-          </span>
+          {raising ? (
+            <>
+              <span style={{ marginLeft: "5px" }}>
+                {functional ? "to" : ""}
+              </span>
+              <span style={{ color: "yellow", marginLeft: "7px" }}>
+                {functional ? raiseAmount : ""}
+              </span>
+            </>
+          ) : null}
         </StyledButton>
       </div>
     </PlayMenuWrapper>

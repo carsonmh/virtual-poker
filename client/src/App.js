@@ -10,13 +10,17 @@ import UserProvider from "./contexts/user/UserProvider";
 import Dashboard from "./screens/Dashboard";
 import OnlineGame from "./screens/OnlineGame";
 
-const socket = io.connect("http://localhost:3001");
+const socket = io.connect("http://10.0.0.145:3001");
 
 function App() {
   return (
     <UserProvider>
       <div
-        style={{ background: "#2F814B", height: "100%", minHeight: "100vh" }}
+        style={{
+          background: "#2F814B",
+          height: "100%",
+          minHeight: "100vh",
+        }}
       >
         <Router>
           <Routes>
@@ -33,7 +37,7 @@ function App() {
               path={"/dashboard"}
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Dashboard socket={socket} />
                 </ProtectedRoute>
               }
             />

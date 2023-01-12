@@ -60,14 +60,14 @@ function PlayerSlot({
   currentTurn,
   playerNumber,
   isCurrentUser,
+  showCards,
 }) {
   const [thisTurn, setThisTurn] = useState(false);
   useEffect(
     () => {
-      console.log("here");
       if (
         (playerNumber === 0 && currentTurn === "p1") ||
-        (playerNumber === 1 && currentTurn === "p2")
+        (playerNumber === 1 && currentTurn === "p2" && showCards === false)
       ) {
         setThisTurn(true);
       } else {
@@ -77,18 +77,19 @@ function PlayerSlot({
     [currentTurn],
     []
   );
+
   return (
     <PlayerSlotWrapper style={{ opacity: thisTurn ? "100%" : "50%" }}>
       <CardWrapper>
-        {isCurrentUser === false ? (
-          <>
-            <BlankCard>HU</BlankCard>
-            <BlankCard>HU</BlankCard>
-          </>
-        ) : (
+        {showCards || isCurrentUser ? (
           <>
             <Card card={cards[0]} />
             <Card card={cards[1]} />
+          </>
+        ) : (
+          <>
+            <BlankCard>HU</BlankCard>
+            <BlankCard>HU</BlankCard>
           </>
         )}
       </CardWrapper>

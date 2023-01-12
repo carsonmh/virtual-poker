@@ -15,6 +15,16 @@ async function getUsersInRoom(io, roomCode) {
   return usersInRoom;
 }
 
+function generateRoomId() {
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 function changeGameState(socket, io, state) {
   const room = getSocketGameRoom(socket);
   console.log(state);
@@ -34,8 +44,11 @@ async function joinRoom(socket, io, data) {
       roomCode: data.code,
       username: data.username,
     };
-    io.to(socket.data.roomCode).emit("room_joined", {
+    socket.emit("room_joined", {
       user: socket.data,
+      allUsers: await getUsersInRoom(io, socket.data.roomCode),
+    });
+    io.to(socket.data.roomCode).emit("user_data", {
       allUsers: await getUsersInRoom(io, socket.data.roomCode),
     });
     if (!data.createRoom) {
@@ -45,7 +58,35 @@ async function joinRoom(socket, io, data) {
   }
 }
 
+async function joinMatchmaking(socket, io, data, q) {
+  socket.data = {
+    username: data.username,
+    points: data.points,
+  };
+  q.push(socket);
+  console.log("q length: " + q.length);
+  if (q.length >= 2) {
+    const [player1, player2] = q.splice(0, 2);
+    room = generateRoomId();
+    player1.join(room);
+    player2.join(room);
+    player1.data.roomCode = room;
+    player2.data.roomCode = room;
+    player1.data.playerNumber = 0;
+    player2.data.playerNumber = 1;
+    player1.emit("match_found", {
+      user: player1.data,
+      allUsers: await getUsersInRoom(io, room),
+    });
+    player2.emit("match_found", {
+      user: player2.data,
+      allUsers: await getUsersInRoom(io, room),
+    });
+  }
+}
+
 module.exports = {
   changeGameState,
   joinRoom,
+  joinMatchmaking,
 };

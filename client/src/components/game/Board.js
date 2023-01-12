@@ -10,7 +10,7 @@ const BoardDiv = styled.div`
   background: rgb(255, 255, 255, 0.2);
   border: 5px solid rgb(120, 120, 120, 0.8);
   border-radius: 300px;
-  box-shadow: 0px 3px 5px 7px rgba(0, 0, 0, 0.2);
+  // box-shadow: 0px 3px 5px 7px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -59,6 +59,7 @@ function Board({
   p2Bet,
   currentTurn,
   gameState,
+  showCards,
 }) {
   let cardLimit = 0;
   switch (turnCount) {
@@ -96,6 +97,7 @@ function Board({
           currentTurn={currentTurn}
           playerNumber={1}
           isCurrentUser={false}
+          showCards={showCards}
         />
       ) : (
         <PlayerSlot
@@ -107,6 +109,7 @@ function Board({
           currentTurn={currentTurn}
           playerNumber={0}
           isCurrentUser={false}
+          showCards={showCards}
         />
       )}
       <BoardDiv>
@@ -148,6 +151,7 @@ function Board({
           currentTurn={currentTurn}
           playerNumber={0}
           isCurrentUser={true}
+          showCards={showCards}
         />
       ) : (
         <PlayerSlot
@@ -159,6 +163,7 @@ function Board({
           currentTurn={currentTurn}
           playerNumber={1}
           isCurrentUser={true}
+          showCards={showCards}
         />
       )}
     </BoardWrapper>

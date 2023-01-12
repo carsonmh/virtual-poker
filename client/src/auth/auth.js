@@ -11,14 +11,17 @@ function handleGoogleSignIn(setUser, setLoggedInWithGoogle) {
       const token = credential.accessToken;
       const user = result.user;
       axios
-        .get("http://localhost:3001/api/get-users")
+        .get("http://10.0.0.145:3001/api/get-users")
         .then((result) => {
           setLoggedInWithGoogle(true);
           const resData = result.data[user.uid];
           if (!resData || !resData.username) {
             return false;
           }
-          setUser((user) => ({ ...user, loggedIn: true }));
+          setUser((user) => ({
+            ...user,
+            loggedIn: true,
+          }));
           return true;
         })
         .catch((error) => {
@@ -61,7 +64,7 @@ function logUserIn(setUser) {
         })
         .catch((error) => console.log(error));
       axios
-        .get("http://localhost:3001/api/get-users")
+        .get("http://10.0.0.145:3001/api/get-users")
         .then((result) => {
           const resData = result.data[uid];
           if (!resData) {
@@ -79,24 +82,25 @@ function logUserIn(setUser) {
   });
 }
 
-function checkUserToken() {
+async function checkUserToken() {
   const userToken = localStorage.getItem("user-token");
   if (!userToken || userToken === "undefined") {
     return false;
   }
-  axios
-    .get("http://localhost:3001/api/check-auth", {
+  return axios
+    .get("http://10.0.0.145:3001/api/check-auth", {
       headers: { authorization: userToken },
     })
     .then((result) => {
-      if (!result || result.data.message !== "success") {
+      if (!result || result.data.message !== "Success") {
         return false;
+      } else {
+        return true;
       }
     })
     .catch((error) => {
       console.log(error);
     });
-  return true;
 }
 
 export { handleGoogleSignIn, logUserIn, checkUserToken, handleGoogleLogout };

@@ -18,12 +18,13 @@ const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 300px;
+  width: 275px;
   height: 300px;
   background: white;
   border-radius: 5px;
   justify-content: space-between;
   padding: 15px;
+  box-shadow: 0px 1px 5px 3px rgba(0, 0, 0, 0.3);
 `;
 
 const SubmitButton = styled.button`
@@ -33,6 +34,14 @@ const SubmitButton = styled.button`
   border-radius: 30px;
   font-size: 20px;
   height: 50px;
+`;
+
+const FormWrapper = styled.div`
+  width: 700px;
+  height: 450px;
+  background: white;
+  display: flex;
+  align-items: center;
 `;
 
 function Home() {
@@ -58,12 +67,6 @@ function Home() {
   useEffect(() => {
     // log user in and create auth token
     logUserIn(setUser);
-    // verify auth token
-    const authorized = checkUserToken();
-    if (!authorized) {
-      localStorage.clear();
-      setUser((user) => ({ ...user, loggedIn: false }));
-    }
   }, []);
 
   function handleUsernameChange(e) {
@@ -78,14 +81,14 @@ function Home() {
       console.log("no user");
       return;
     }
-    setUser((user) => ({ ...user, loggedIn: true }));
     axios
-      .post("http://localhost:3001/api/signup", {
+      .post("http://10.0.0.145:3001/api/signup", {
         username: username ? username : user.displayName + generateRoomCode(),
         email: user.email,
         userId: user.uid,
       })
       .then((result) => {
+        setUser((user) => ({ ...user, loggedIn: true }));
         console.log(result);
       })
       .catch((error) => {
@@ -96,51 +99,92 @@ function Home() {
   return (
     <div
       style={{
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        height: "100vh",
         justifyContent: "center",
         backgroundImage: `url(${PokerBackground})`,
       }}
     >
       <>
-        <StyledForm onSubmit={handleSignUp}>
-          <div>
-            <h1 style={{ fontWeight: "bold", fontSize: "30px" }}>Hey there!</h1>
-            <p style={{ fontSize: "14px" }}>
-              Please sign in with google and we'll help you create an account if
-              needed
-            </p>
-          </div>
-          {!loggedInWithGoogle ? (
-            <>
-              <LogInWithGoogleButton
-                type="button"
-                setLoggedInWithGoogle={setLoggedInWithGoogle}
-              ></LogInWithGoogleButton>
-            </>
-          ) : (
-            <></>
-          )}
-          {loggedInWithGoogle ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <InputField
-                placeholder="Type your username"
-                onChange={handleUsernameChange}
-              ></InputField>
-              <SubmitButton type="submit">submit</SubmitButton>
+        <FormWrapper>
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              background: "red",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <div style={{ width: "90%", padding: "15px" }}>
+              <h1
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "23px",
+                  textAlign: "center",
+                }}
+              >
+                Welcome to Heads-up Poker!
+              </h1>
+              <p style={{ textAlign: "center", fontSize: "15px" }}>
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Dolorem, voluptatibus itaque tempora nam hic consequatur id?
+                Est, temporibus voluptates omnis nulla earum itaque incidunt
+                mollitia.
+              </p>
             </div>
-          ) : (
-            <></>
-          )}
-        </StyledForm>
+          </div>
+          <div style={{ padding: "15px" }}>
+            <StyledForm onSubmit={handleSignUp}>
+              {!loggedInWithGoogle ? (
+                <>
+                  <div>
+                    <h1 style={{ fontWeight: "bold", fontSize: "30px" }}>
+                      Hey there!
+                    </h1>
+                    <p style={{ fontSize: "14px" }}>
+                      Please sign in with google and we'll help you create an
+                      account if needed
+                    </p>
+                  </div>
+                  <LogInWithGoogleButton
+                    type="button"
+                    setLoggedInWithGoogle={setLoggedInWithGoogle}
+                  ></LogInWithGoogleButton>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <h1 style={{ fontWeight: "bold", fontSize: "30px" }}>
+                      Pick a Username
+                    </h1>
+                    <p style={{ fontSize: "14px" }}>
+                      Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                      Nihil libero omnis nesciunt aut atque fuga!
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <InputField
+                      placeholder="Type your username"
+                      onChange={handleUsernameChange}
+                    ></InputField>
+                    <SubmitButton type="submit">submit</SubmitButton>
+                  </div>
+                </>
+              )}
+            </StyledForm>
+          </div>
+        </FormWrapper>
       </>
     </div>
   );

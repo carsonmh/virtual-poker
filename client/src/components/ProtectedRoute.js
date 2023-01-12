@@ -1,22 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { checkUserToken } from "../auth/auth";
+import userContext from "../contexts/user/userContext";
 function ProtectedRoute(props) {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const { user, setUser } = useContext(userContext);
+
   function checkUserAndNavigate() {
-    if (!checkUserToken()) {
-      setIsLoggedIn(false);
-      return navigate("/");
-    } else {
-      setIsLoggedIn(true);
-    }
+    checkUserToken().then((result) => {
+      if (!result) {
+        localStorage.clear();
+        setUser((user) => ({ ...user, loggedIn: false }));
+        setIsLoggedIn(false);
+        return navigate("/");
+      } else {
+        setIsLoggedIn(true);
+      }
+    });
   }
 
   useEffect(() => {
     checkUserAndNavigate();
   }, [isLoggedIn]);
-  return <React.Fragment>{isLoggedIn ? props.children : null}</React.Fragment>;
+  return <>{isLoggedIn ? props.children : null}</>;
 }
 export default ProtectedRoute;
