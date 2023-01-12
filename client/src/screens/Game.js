@@ -87,27 +87,11 @@ function Game({ roomCode, socket, users }) {
   } = gameState;
 
   const [raiseAmount, setRaiseAmount] = useState(0);
-  const [isCurrentTurn, setIsCurrentTurn] = useState("");
   const [functional, setFunctional] = useState(true);
   const [showPopUp, setShowPopUp] = useState(true);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
 
   const { user, setUser } = useContext(userContext);
-
-  useEffect(
-    () => {
-      if (
-        (currentTurn === "p1" && playerNumber === 0) ||
-        (currentTurn === "p2" && playerNumber === 1)
-      ) {
-        setIsCurrentTurn(true);
-      } else {
-        setIsCurrentTurn(false);
-      }
-    },
-    [],
-    [currentTurn]
-  );
 
   useEffect(() => {
     setGameState((gameState) => ({
@@ -205,10 +189,8 @@ function Game({ roomCode, socket, users }) {
             pot: 0,
           });
       }
-    }
-    if (
+    } else if (
       restart &&
-      !gameOver &&
       (winner === "p1" || winner === "p2" || winner === "tie")
     )
       switch (winner) {

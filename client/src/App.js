@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UserProvider from "./contexts/user/UserProvider";
 import Dashboard from "./screens/Dashboard";
 import OnlineGame from "./screens/OnlineGame";
+import Leaderboard from "./screens/Leaderboard";
 
 const socket = io.connect("http://10.0.0.145:3001");
 
@@ -49,6 +50,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path={"/leaderboard"} element={<Leaderboard />} />
             {/* <Route path="/sign-up" element={<Signup />} />
             <Route path="/login" element={<Login />} /> */}
           </Routes>
