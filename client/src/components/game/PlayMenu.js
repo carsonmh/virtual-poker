@@ -81,6 +81,7 @@ function PlayMenu({
   SB,
   functional,
   setFunctional,
+  gameOver,
 }) {
   const [allIn, setAllIn] = useState(false);
   const [raiseButtonVisible, setRaiseButtonVisible] = useState(true);
@@ -180,14 +181,12 @@ function PlayMenu({
 
     socket.emit("game_state_change", gameState);
 
-    const p1ChipsTemp = p1Chips;
-    const p2ChipsTemp = p2Chips;
-
-    if (p1ChipsTemp === 0 || p2ChipsTemp === 0) {
+    if (p1Chips - increment === 0 || p2Chips - increment === 0) {
       setFunctional(false);
       setAllIn(true);
       socket.emit("game_state_change", { currentTurn: "none" });
     }
+    setRaising(false);
   }
 
   function raiseHandler(e) {
@@ -232,6 +231,7 @@ function PlayMenu({
       turnCount: -1, //reset turn count
     };
     socket.emit("game_state_change", newGameState);
+    setRaising(false);
   }
 
   return (

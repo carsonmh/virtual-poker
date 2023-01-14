@@ -4,25 +4,12 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { Tooltip } from "@chakra-ui/react";
 
+import Loading from "../components/Loading";
 import userContext from "../contexts/user/userContext";
 import { handleGoogleLogout, logUserIn } from "../auth/auth";
 import { generateRoomCode } from "../utils/Utils";
 import LeaderboardIcon from "../assets/icons8-podium-64.png";
-
-const StyledButton = styled.button`
-  background: white;
-  border-radius: 5px;
-  padding: 10px;
-  width: 200px;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.5);
-  }
-`;
+import StyledButton from "../components/StyledButton";
 
 const GameCodeInput = styled.input`
   width: 250px;
@@ -53,7 +40,7 @@ const GameModeHeader = styled.h1`
   padding: 0;
   font-size: 25px;
   text-align: center;
-  color: rgba(50, 168, 82, 0.6);
+  color: rgba(80, 198, 112, 0.6);
   margin-bottom: 10px;
   font-weight: bold;
 `;
@@ -61,12 +48,12 @@ const GameModeHeader = styled.h1`
 const Navbar = styled.div`
   width: 100%;
   height: 50px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
 `;
 
 const NavItem = styled.li`
   list-style: none;
   margin: 10px;
+  cursor: pointer;
 `;
 
 const MenuPanel = styled.div`
@@ -98,6 +85,20 @@ function Dashboard({ socket }) {
   const { user, setUser } = useContext(userContext);
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setUser((user) => ({ ...user, code: null }));
+    logUserIn(setUser);
+  }, []);
+
+  useEffect(() => {
+    //wait until user data has loaded
+    if (user.points !== undefined && user.points !== null) {
+      setIsLoading(false);
+    }
+  }, [user]);
+
   function handleRoomNameChange(e) {
     const value = e.target.value;
     setUser((user) => ({ ...user, code: value }));
@@ -116,17 +117,27 @@ function Dashboard({ socket }) {
     navigate("/private-game");
     socket.emit("join_room", { ...user, code: user.code, createRoom: false });
   }
-
-  useEffect(() => {
-    logUserIn(setUser);
-  }, []);
-
   useEffect(() => {
     //checking if the user was logged out using logout button
     if (!user.loggedIn && !localStorage.getItem("user-token")) {
       return navigate("/");
     }
   }, [user.loggedIn]);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -171,7 +182,7 @@ function Dashboard({ socket }) {
                     borderRadius: "100px",
                   }}
                 >
-                  <h1>{user.points}</h1>
+                  <h1>{Math.round(user.points)}</h1>
                 </div>
               </Tooltip>
             </NavItem>
@@ -222,21 +233,23 @@ function Dashboard({ socket }) {
                     justifyContent: "space-around",
                   }}
                 >
-                  <Link to={"/online-match"}>
+                  <div>
                     <GameModeHeader>Online Match</GameModeHeader>
-                    <StyledButton
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "25px",
-                        width: "225px",
-                        height: "50px",
-                      }}
-                    >
-                      Play Online
-                    </StyledButton>
-                  </Link>
+                    <Link to={"/online-match"}>
+                      <StyledButton
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "25px",
+                          width: "225px",
+                          height: "50px",
+                        }}
+                      >
+                        Play Online
+                      </StyledButton>
+                    </Link>
+                  </div>
                 </MenuPanel>
                 <MenuPanel
                   style={{
@@ -299,24 +312,27 @@ function Dashboard({ socket }) {
                 }}
               >
                 <GameModeHeader>Lorem, ipsum.</GameModeHeader>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquam
-                ea molestiae, eveniet, est fuga dolore ducimus aliquid totam,
-                blanditiis quos doloremque delectus mollitia aspernatur? Earum
-                voluptatem quod accusamus! Deserunt architecto libero magni.
-                Ratione dolor laborum consequatur ex distinctio illum omnis
-                aliquid error officia rerum quibusdam impedit vel porro,
-                obcaecati hic nam consectetur animi illo fugit temporibus
-                molestiae! Doloremque itaque eum illo, mollitia asperiores
-                molestiae voluptas odit voluptates tempore soluta consequuntur,
-                repudiandae non necessitatibus, beatae quas! Unde quod id labore
-                quidem impedit dolores autem maxime odit amet quaerat accusamus
-                fugiat ducimus natus, ex ipsam praesentium sit laboriosam
-                officiis, soluta saepe itaque? Atque saepe ullam id voluptatem
-                delectus quam fugit vel natus distinctio ad culpa quo omnis qui,
-                dolore quod nam. Doloremque maiores excepturi quae vel quo qui
-                sed. Placeat, fugiat eos! Laborum harum voluptatibus veniam
-                nemo! Laborum esse non dolorem nam facere incidunt doloremque
-                corrupti autem quos. Repellendus laboriosam perferendis dolorem.
+                <p style={{ color: "#85BF99" }}>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  Aliquam ea molestiae, eveniet, est fuga dolore ducimus aliquid
+                  totam, blanditiis quos doloremque delectus mollitia
+                  aspernatur? Earum voluptatem quod accusamus! Deserunt
+                  architecto libero magni. Ratione dolor laborum consequatur ex
+                  distinctio illum omnis aliquid error officia rerum quibusdam
+                  impedit vel porro, obcaecati hic nam consectetur animi illo
+                  fugit temporibus molestiae! Doloremque itaque eum illo,
+                  mollitia asperiores molestiae voluptas odit voluptates tempore
+                  soluta consequuntur, repudiandae non necessitatibus, beatae
+                  quas! Unde quod id labore quidem impedit dolores autem maxime
+                  odit amet quaerat accusamus fugiat ducimus natus, ex ipsam
+                  praesentium sit laboriosam officiis, soluta saepe itaque?
+                  Atque saepe ullam id voluptatem delectus quam fugit vel natus
+                  distinctio ad culpa quo omnis qui, dolore quod nam. Doloremque
+                  maiores excepturi quae vel quo qui sed. Placeat, fugiat eos!
+                  Laborum harum voluptatibus veniam nemo! Laborum esse non
+                  dolorem nam facere incidunt doloremque corrupti autem quos.
+                  Repellendus laboriosam perferendis dolorem.
+                </p>
               </ScrollableMenuPanel>
             </div>
           </GameMenuWrapper>

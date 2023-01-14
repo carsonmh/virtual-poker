@@ -18,10 +18,23 @@ function updateUserElo(req, res) {
   try {
     const { userId, newElo } = req.body;
     if (!userId) {
-      return;
+      res.send({
+        success: false,
+        message: "userId not given",
+      });
+    }
+    if (!newElo) {
+      res.send({
+        success: false,
+        message: "elo not given",
+      });
     }
     const userRef = db.doc(`users/${userId}`);
-    userRef.update({ elo: newElo });
+    userRef.update({ points: newElo });
+    res.send({
+      success: true,
+      message: "updated Elo",
+    });
   } catch (e) {
     console.error(e);
     res.send({
@@ -33,11 +46,6 @@ function updateUserElo(req, res) {
 }
 
 function signupUser(req, res) {
-  res.header("Access-Control-Allow-Origin", "http://10.0.0.145:3000");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
   try {
     const { email, username, userId } = req.body;
     if (!userId) {
@@ -70,6 +78,10 @@ function signupUser(req, res) {
                   username: username,
                   points: 700,
                   gamesPlayed: 0,
+                });
+                res.send({
+                  success: true,
+                  message: "created user in db",
                 });
               }
             });

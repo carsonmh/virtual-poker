@@ -43,6 +43,8 @@ async function joinRoom(socket, io, data) {
       playerNumber: data.createRoom ? 0 : 1,
       roomCode: data.code,
       username: data.username,
+      uid: data.uid,
+      points: data.points,
     };
     socket.emit("room_joined", {
       user: socket.data,
@@ -51,10 +53,6 @@ async function joinRoom(socket, io, data) {
     io.to(socket.data.roomCode).emit("user_data", {
       allUsers: await getUsersInRoom(io, socket.data.roomCode),
     });
-    if (!data.createRoom) {
-      const room = getSocketGameRoom(socket);
-      socket.to(room).emit("game_starting");
-    }
   }
 }
 
@@ -62,6 +60,7 @@ async function joinMatchmaking(socket, io, data, q) {
   socket.data = {
     username: data.username,
     points: data.points,
+    uid: data.uid,
   };
   q.push(socket);
   console.log("q length: " + q.length);

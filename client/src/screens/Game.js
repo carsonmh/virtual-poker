@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 import Board from "../components/game/Board";
 import PlayMenu from "../components/game/PlayMenu";
 import { makeDeck } from "../components/game/Deck";
 import {
+  computeEloChange,
   determineWinner,
   getUserFromPlayerString,
-  computeEloChange,
+  getOpponent,
 } from "../utils/Utils";
 import userContext from "../contexts/user/userContext";
 import {
@@ -17,24 +19,13 @@ import {
   resetGameState,
   endGame,
 } from "../utils/GameFunctions";
+import GameOverPopup from "../components/game/GameOverPopup";
+import { auth } from "../config/firebase-config";
 
 const GameWrapper = styled.div`
   display: grid;
   text-align: center;
   align-items: space-between;
-`;
-
-const GameOverPopup = styled.div`
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 12px;
-  width: 375px;
-  height: 275px;
-  background: white;
-  color: black;
-  box-shadow: 0px 0px 7px 4px rgba(0, 0, 0, 0.2);
 `;
 
 function Game({ roomCode, socket, users }) {
@@ -90,8 +81,24 @@ function Game({ roomCode, socket, users }) {
   const [functional, setFunctional] = useState(true);
   const [showPopUp, setShowPopUp] = useState(true);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+  const [isWinner, setIsWinner] = useState(null);
 
   const { user, setUser } = useContext(userContext);
+
+  useEffect(() => {
+    if (opponentDisconnected) {
+      setIsWinner(true);
+    } else {
+      if (
+        (winner === "p1" && playerNumber === 0) ||
+        (winner === "p2" && playerNumber === 1)
+      ) {
+        setIsWinner(true);
+      } else {
+        setIsWinner(false);
+      }
+    }
+  }, [opponentDisconnected, winner]);
 
   useEffect(() => {
     setGameState((gameState) => ({
@@ -110,22 +117,26 @@ function Game({ roomCode, socket, users }) {
     }
   }, []);
 
-  socket.on("game_starting", () => {
-    if (gameStarted === false) {
-      startGame(socket);
-    }
-  });
-
   socket.on("game_state_change", (state) => {
     setGameState((gameState) => ({ ...gameState, ...state }));
   });
 
-  socket.on("opponent_disconnected", () => {
+  socket.on("opponent_disconnected", (userData) => {
     setGameState((gameState) => ({
       ...gameState,
       gameOver: true,
+      currentTurn: "none",
     }));
+    setFunctional(false);
     setOpponentDisconnected(true);
+    axios.post("http://10.0.0.145:3001/api/update-elo", {
+      userId: userData.uid,
+      newElo: computeEloChange(
+        getOpponent(users, user).points,
+        userData.points,
+        false
+      ),
+    });
   });
 
   useEffect(() => {
@@ -150,12 +161,12 @@ function Game({ roomCode, socket, users }) {
         setFunctional(false);
         setTimeout(() => {
           if (
-            p1Chips === 0 ||
-            (p2Chips === 0 &&
-              determineWinner(p1Cards, p2Cards, mainDeck) !== "tie")
+            (p1Chips === 0 || p2Chips === 0) &&
+            determineWinner(p1Cards, p2Cards, mainDeck) !== "tie"
           ) {
             socket.emit("game_state_change", { gameOver: true });
           } else {
+            setFunctional(true);
             setGameState((gameState) => ({ ...gameState, showCards: false }));
           }
           if (playerNumber === 0) {
@@ -164,7 +175,7 @@ function Game({ roomCode, socket, users }) {
               winner: determineWinner(p1Cards, p2Cards, mainDeck),
             });
           }
-        }, 3000);
+        }, 2000);
         break;
     }
   }, [turnCount]);
@@ -234,29 +245,38 @@ function Game({ roomCode, socket, users }) {
     setGameState((gameState) => ({ ...gameState, restart: false }));
   }, [restart]);
 
-  if (gameOver === true) {
-    let isWinner = endGame(
-      playerNumber,
-      opponentDisconnected,
-      p1Cards,
-      p2Cards,
-      mainDeck,
-      users,
-      user
-    );
-    if (isWinner === null) {
-      return <div>There was an error</div>;
+  useEffect(() => {
+    if (gameOver === true) {
+      setFunctional(false);
+      let isWinner = endGame(
+        playerNumber,
+        opponentDisconnected,
+        p1Cards,
+        p2Cards,
+        mainDeck,
+        users,
+        user
+      );
+      if (isWinner === null) {
+        console.log("false");
+      }
+      axios.post("http://10.0.0.145:3001/api/update-elo", {
+        userId: user.uid,
+        newElo: computeEloChange(
+          user.points,
+          getOpponent(users, user).points,
+          isWinner
+        ),
+      });
     }
-    console.log(isWinner);
-    //   axios.post("http://localhost:3001/api/update-elo", {
-    //     userId: user.uid,
-    //     elo: eloChange
-    //   })
-    // return <div>game over. Winner: bruh</div>;
-  }
+  }, [gameOver]);
 
-  if (gameStarted === false) {
-    return <div>waiting room, code: {user.code}</div>;
+  // useEffect(() => {
+  //   if (!gameStarted) {
+  //   }
+  // }, [gameStarted]);
+  if (!gameStarted) {
+    return <div>waiting room</div>;
   }
 
   return (
@@ -322,21 +342,16 @@ function Game({ roomCode, socket, users }) {
         SB={SB}
         functional={functional}
         setFunctional={setFunctional}
+        gameOver={gameOver}
       />
       {gameOver && showPopUp ? (
-        <GameOverPopup>
-          <div
-            style={{
-              textAlign: "right",
-            }}
-            onClick={() => {
-              setShowPopUp(false);
-            }}
-          >
-            X
-          </div>
-          Game Over
-        </GameOverPopup>
+        <GameOverPopup
+          isWinner={isWinner}
+          showPopup={showPopUp}
+          setShowPopUp={setShowPopUp}
+          users={users}
+          opponentDisconnected={opponentDisconnected}
+        />
       ) : null}
     </GameWrapper>
   );

@@ -43,7 +43,7 @@ const CardWrapper = styled.div`
   top: 6px;
 `;
 
-const InnerText = styled.p`
+const InnerText = styled.div`
   font-size: 14px;
 `;
 
@@ -94,9 +94,18 @@ function PlayerSlot({
         )}
       </CardWrapper>
       <PlayerSlotDiv>
-        <InnerText>
-          {user} {isCurrentUser ? <span>(you)</span> : <span></span>} / {chips}
-        </InnerText>
+        <div
+          style={{
+            textOverflow: "ellipsis",
+            maxWidth: "100px",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {user}
+        </div>
+        &nbsp;
+        {isCurrentUser ? <span>(you)&nbsp;</span> : <span></span>} / {chips}
       </PlayerSlotDiv>
     </PlayerSlotWrapper>
   );

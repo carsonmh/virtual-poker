@@ -13,7 +13,7 @@ app.use(express.json());
 const server = http.createServer(app);
 
 app.post("/api/signup", users.signupUser);
-app.get("/api/update-elo", users.updateUserElo);
+app.post("/api/update-elo", users.updateUserElo);
 app.get("/api/get-users", users.getUsers);
 app.get("/api/check-auth", users.checkUserAuth);
 app.get("/", (req, res) => {
@@ -37,7 +37,14 @@ io.on("connection", (socket) => {
       q.splice(index, 1);
     }
     if (socket.data && socket.data.roomCode) {
-      io.to(socket.data.roomCode).emit("opponent_disconnected");
+      io.to(socket.data.roomCode).emit("opponent_disconnected", socket.data);
+    }
+  });
+
+  socket.on("leave_matchmaking", () => {
+    const index = q.indexOf(socket);
+    if (index > -1) {
+      q.splice(index, 1);
     }
   });
 
@@ -51,6 +58,10 @@ io.on("connection", (socket) => {
 
   socket.on("join_matchmaking", (data) => {
     game.joinMatchmaking(socket, io, data, q);
+  });
+
+  socket.on("start_game", () => {
+    socket.emit("game_starting");
   });
 });
 

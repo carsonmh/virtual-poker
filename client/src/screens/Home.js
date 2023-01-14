@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import styled from "styled-components";
-
+import { MutatingDots, Bars } from "react-loader-spinner";
 import { Link, Navigate } from "react-router-dom";
 import { auth } from "../config/firebase-config";
 import axios from "axios";
@@ -11,6 +11,8 @@ import LogInWithGoogleButton from "../components/home/LogInWithGoogleButton";
 import InputField from "../components/home/InputField";
 import { useNavigate } from "react-router";
 import PokerBackground from "../assets/9e071a09af668c11512375ab1b8bdb3b.jpeg";
+import Loading from "../components/Loading";
+import BlackDesign from "../assets/black-design.jpeg";
 
 import { generateRoomCode } from "../utils/Utils";
 
@@ -19,12 +21,12 @@ const StyledForm = styled.form`
   flex-direction: column;
   align-items: center;
   width: 275px;
-  height: 300px;
+  height: 350px;
   background: white;
   border-radius: 5px;
   justify-content: space-between;
   padding: 15px;
-  box-shadow: 0px 1px 5px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 5px 0.5px rgba(0, 0, 0, 0.15);
 `;
 
 const SubmitButton = styled.button`
@@ -34,6 +36,11 @@ const SubmitButton = styled.button`
   border-radius: 30px;
   font-size: 20px;
   height: 50px;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const FormWrapper = styled.div`
@@ -46,12 +53,14 @@ const FormWrapper = styled.div`
 
 function Home() {
   const [username, setUsername] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [loggedInWithGoogle, setLoggedInWithGoogle] = useState(false);
   const navigate = useNavigate();
 
   const { user, setUser } = useContext(userContext);
 
   useEffect(() => {
+    setIsLoading(false);
     if (localStorage.getItem("user-token")) {
       return navigate("/dashboard");
     }
@@ -59,10 +68,11 @@ function Home() {
 
   useEffect(() => {
     setLoggedInWithGoogle(false);
+    console.log("useeffect");
     if (user.loggedIn) {
       return navigate("/dashboard");
     }
-  }, [user.loggedIn]);
+  }, [user]);
 
   useEffect(() => {
     // log user in and create auth token
@@ -75,25 +85,47 @@ function Home() {
   }
 
   function handleSignUp(e) {
+    console.log("signing up");
     e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) {
+    const authUser = auth.currentUser;
+    if (!authUser) {
       console.log("no user");
       return;
     }
     axios
       .post("http://10.0.0.145:3001/api/signup", {
-        username: username ? username : user.displayName + generateRoomCode(),
-        email: user.email,
-        userId: user.uid,
+        username: username
+          ? username
+          : authUser.displayName + generateRoomCode(),
+        email: authUser.email,
+        userId: authUser.uid,
       })
       .then((result) => {
+        console.log("hello world");
         setUser((user) => ({ ...user, loggedIn: true }));
-        console.log(result);
+        authUser.getIdToken().then((token) => {
+          localStorage.setItem("user-token", "Bearer " + token);
+        });
       })
       .catch((error) => {
+        console.log("error");
         console.log(error.response.data);
       });
+  }
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loading />
+      </div>
+    );
   }
 
   return (
@@ -104,7 +136,8 @@ function Home() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        backgroundImage: `url(${PokerBackground})`,
+        background:
+          "linear-gradient(to bottom right, black, rgb(200, 200, 200))",
       }}
     >
       <>
@@ -113,11 +146,14 @@ function Home() {
             style={{
               width: "100%",
               height: "100%",
-              background: "red",
+              // background: "red",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
+              backgroundImage: `url(${BlackDesign})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           >
             <div style={{ width: "90%", padding: "15px" }}>
@@ -126,19 +162,24 @@ function Home() {
                   fontWeight: "bold",
                   fontSize: "23px",
                   textAlign: "center",
+                  color: "white",
                 }}
               >
                 Welcome to Heads-up Poker!
               </h1>
-              <p style={{ textAlign: "center", fontSize: "15px" }}>
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                Dolorem, voluptatibus itaque tempora nam hic consequatur id?
-                Est, temporibus voluptates omnis nulla earum itaque incidunt
-                mollitia.
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "white",
+                  textAlign: "center",
+                }}
+              >
+                Please take a moment to login or signup so we can get you
+                started playing the game!
               </p>
             </div>
           </div>
-          <div style={{ padding: "15px" }}>
+          <div style={{ padding: "20px" }}>
             <StyledForm onSubmit={handleSignUp}>
               {!loggedInWithGoogle ? (
                 <>
@@ -178,7 +219,7 @@ function Home() {
                       placeholder="Type your username"
                       onChange={handleUsernameChange}
                     ></InputField>
-                    <SubmitButton type="submit">submit</SubmitButton>
+                    <SubmitButton type="submit">Submit</SubmitButton>
                   </div>
                 </>
               )}

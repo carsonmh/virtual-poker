@@ -48,9 +48,15 @@ function computeEloChange(elo1, elo2, winner) {
   return new1;
 }
 
+function getOpponent(users, user) {
+  const playerNumber = user.playerNumber;
+  return users.filter((user) => user.playerNumber !== playerNumber)[0];
+}
+
 export {
   generateRoomCode,
   determineWinner,
   getUserFromPlayerString,
   computeEloChange,
+  getOpponent,
 };

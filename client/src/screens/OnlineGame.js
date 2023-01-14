@@ -1,7 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
+
 import { logUserIn } from "../auth/auth";
 import userContext from "../contexts/user/userContext";
 import Game from "./Game";
+import Loading from "../components/Loading";
+import GameQueue from "../components/game/GameQueue";
 
 function OnlineGame({ socket }) {
   const [matchFound, setMatchFound] = useState(false);
@@ -18,7 +21,6 @@ function OnlineGame({ socket }) {
       setRoomCode(data.user.roomCode);
       setUsers(() => data.allUsers);
       setUser((user) => ({ ...user, playerNumber: data.user.playerNumber }));
-      console.log(data);
     });
   }, []);
 
@@ -30,8 +32,8 @@ function OnlineGame({ socket }) {
   }, [user]);
   return (
     <>
-      {!matchFound || !roomCode || !users ? (
-        <div>loading...</div>
+      {!matchFound ? (
+        <GameQueue socket={socket} />
       ) : (
         <Game roomCode={roomCode} socket={socket} users={users} />
       )}

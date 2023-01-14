@@ -53,14 +53,14 @@ function handleGoogleLogout(setUser) {
 }
 
 function logUserIn(setUser) {
+  let userToken;
   auth.onAuthStateChanged((userCred) => {
     if (userCred) {
-      console.log("user cred found");
       const uid = userCred.uid;
       userCred
         .getIdToken()
         .then((token) => {
-          localStorage.setItem("user-token", "Bearer " + token);
+          userToken = token;
         })
         .catch((error) => console.log(error));
       axios
@@ -70,7 +70,13 @@ function logUserIn(setUser) {
           if (!resData) {
             return false;
           }
-          setUser((user) => ({ ...user, ...resData, loggedIn: true }));
+          setUser((user) => ({
+            ...user,
+            ...resData,
+            loggedIn: true,
+            uid: uid,
+          }));
+          localStorage.setItem("user-token", "Bearer " + userToken);
           return true;
         })
         .catch((error) => {

@@ -14,7 +14,7 @@ const GoogleButton = styled.button`
   display: flex;
   align-items: center;
   background: white;
-  box-shadow: 0px 1px 5px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 5px 3px rgba(0, 0, 0, 0.2);
 `;
 
 function LogInWithGoogleButton({ setLoggedInWithGoogle }) {

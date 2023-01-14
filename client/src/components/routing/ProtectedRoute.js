@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkUserToken } from "../auth/auth";
-import userContext from "../contexts/user/userContext";
+import { checkUserToken } from "../../auth/auth";
+import userContext from "../../contexts/user/userContext";
 
 function ProtectedRoute(props) {
   const navigate = useNavigate();
