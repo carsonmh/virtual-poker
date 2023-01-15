@@ -5,7 +5,7 @@ import io from "socket.io-client";
 
 import PrivateGame from "./screens/PrivateGame";
 import Home from "./screens/Home";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
 import UserProvider from "./contexts/user/UserProvider";
 import Dashboard from "./screens/Dashboard";
 import OnlineGame from "./screens/OnlineGame";

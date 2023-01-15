@@ -1,8 +1,10 @@
-import PlayerSlot from "./PlayerSlot";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Card from "./Card";
 
+import PlayerSlot from "./PlayerSlot";
+import Card from "./Card";
 import BetAmount from "./BetAmount";
+import RestartMessage from "./RestartMessage";
 
 const BoardDiv = styled.div`
   width: 500px;
@@ -18,8 +20,10 @@ const BoardDiv = styled.div`
 `;
 
 const BoardWrapper = styled.div`
+  position: relative;
+  top: 13%;
   display: flex;
-  width: 100%;
+  width: 600px;
   flex-direction: column;
   align-items: center;
   margin: 10px 0 10px 0;
@@ -60,113 +64,111 @@ function Board({
   currentTurn,
   gameState,
   showCards,
+  restartMessage,
 }) {
   let cardLimit = 0;
   switch (turnCount) {
     case 2:
-      cardLimit = 3;
-      break;
     case 3:
       cardLimit = 3;
       break;
     case 4:
-      cardLimit = 4;
-      break;
     case 5:
       cardLimit = 4;
       break;
     case 6:
-      cardLimit = 5;
-      break;
     case 7:
-      cardLimit = 5;
-      break;
     case 8:
       cardLimit = 5;
       break;
   }
   return (
-    <BoardWrapper>
-      {playerNumber === 0 ? (
-        <PlayerSlot
-          user={users
-            .filter((user) => user.playerNumber === 1)
-            .map((user) => user.username)}
-          chips={p2Chips}
-          cards={p2Cards}
-          currentTurn={currentTurn}
-          playerNumber={1}
-          isCurrentUser={false}
-          showCards={showCards}
-        />
-      ) : (
-        <PlayerSlot
-          user={users
-            .filter((user) => user.playerNumber === 0)
-            .map((user) => user.username)}
-          chips={p1Chips}
-          cards={p1Cards}
-          currentTurn={currentTurn}
-          playerNumber={0}
-          isCurrentUser={false}
-          showCards={showCards}
-        />
-      )}
-      <BoardDiv>
+    <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+      <BoardWrapper>
         {playerNumber === 0 ? (
-          <BetAmount betAmount={p2Bet} top={"-25px"} />
+          <PlayerSlot
+            user={users
+              .filter((user) => user.playerNumber === 1)
+              .map((user) => user.username)}
+            chips={p2Chips}
+            cards={p2Cards}
+            currentTurn={currentTurn}
+            playerNumber={1}
+            isCurrentUser={false}
+            showCards={showCards}
+          />
         ) : (
-          <BetAmount betAmount={p1Bet} top={"-25px"} />
+          <PlayerSlot
+            user={users
+              .filter((user) => user.playerNumber === 0)
+              .map((user) => user.username)}
+            chips={p1Chips}
+            cards={p1Cards}
+            currentTurn={currentTurn}
+            playerNumber={0}
+            isCurrentUser={false}
+            showCards={showCards}
+          />
         )}
-        <PotDiv>
-          <div>
-            Total Pot: <strong>{pot}</strong>
-          </div>
-        </PotDiv>
-        <TableCardsWrapper>
-          {mainDeck.map((value, index) => {
-            if (index >= cardLimit) {
-              return;
-            }
-            return (
-              <CardWrapper>
-                <Card card={value} />
-              </CardWrapper>
-            );
-          })}
-        </TableCardsWrapper>
+        <BoardDiv>
+          {playerNumber === 0 ? (
+            <BetAmount betAmount={p2Bet} top={"-25px"} />
+          ) : (
+            <BetAmount betAmount={p1Bet} top={"-25px"} />
+          )}
+          <PotDiv>
+            <div>
+              Total Pot: <strong>{pot}</strong>
+            </div>
+          </PotDiv>
+          <TableCardsWrapper>
+            {mainDeck.map((value, index) => {
+              if (index >= cardLimit) {
+                return;
+              }
+              return (
+                <CardWrapper>
+                  <Card card={value} />
+                </CardWrapper>
+              );
+            })}
+          </TableCardsWrapper>
+          {playerNumber === 0 ? (
+            <BetAmount betAmount={p1Bet} top={"25px"} />
+          ) : (
+            <BetAmount betAmount={p2Bet} top={"25px"} />
+          )}
+        </BoardDiv>
         {playerNumber === 0 ? (
-          <BetAmount betAmount={p1Bet} top={"25px"} />
+          <PlayerSlot
+            user={users
+              .filter((user) => user.playerNumber === 0)
+              .map((user) => user.username)}
+            chips={p1Chips}
+            cards={p1Cards}
+            currentTurn={currentTurn}
+            playerNumber={0}
+            isCurrentUser={true}
+            showCards={showCards}
+          />
         ) : (
-          <BetAmount betAmount={p2Bet} top={"25px"} />
+          <PlayerSlot
+            user={users
+              .filter((user) => user.playerNumber === 1)
+              .map((user) => user.username)}
+            chips={p2Chips}
+            cards={p2Cards}
+            currentTurn={currentTurn}
+            playerNumber={1}
+            isCurrentUser={true}
+            showCards={showCards}
+          />
         )}
-      </BoardDiv>
-      {playerNumber === 0 ? (
-        <PlayerSlot
-          user={users
-            .filter((user) => user.playerNumber === 0)
-            .map((user) => user.username)}
-          chips={p1Chips}
-          cards={p1Cards}
-          currentTurn={currentTurn}
-          playerNumber={0}
-          isCurrentUser={true}
-          showCards={showCards}
-        />
-      ) : (
-        <PlayerSlot
-          user={users
-            .filter((user) => user.playerNumber === 1)
-            .map((user) => user.username)}
-          chips={p2Chips}
-          cards={p2Cards}
-          currentTurn={currentTurn}
-          playerNumber={1}
-          isCurrentUser={true}
-          showCards={showCards}
-        />
-      )}
-    </BoardWrapper>
+        {restartMessage ? (
+          <RestartMessage message={restartMessage} time={3} />
+        ) : null}
+      </BoardWrapper>
+    </div>
   );
 }
 

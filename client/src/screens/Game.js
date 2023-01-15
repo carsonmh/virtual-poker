@@ -11,6 +11,7 @@ import {
   determineWinner,
   getUserFromPlayerString,
   getOpponent,
+  getIsWinner,
 } from "../utils/Utils";
 import userContext from "../contexts/user/userContext";
 import {
@@ -18,9 +19,12 @@ import {
   gameTurnOne,
   resetGameState,
   endGame,
+  restartGame,
 } from "../utils/GameFunctions";
 import GameOverPopup from "../components/game/GameOverPopup";
 import { auth } from "../config/firebase-config";
+import GameLog from "../components/game/GameLog";
+import RestartMessage from "../components/game/RestartMessage";
 
 const GameWrapper = styled.div`
   display: grid;
@@ -29,8 +33,9 @@ const GameWrapper = styled.div`
 `;
 
 function Game({ roomCode, socket, users }) {
+  const { user, setUser } = useContext(userContext);
   const initialState = {
-    playerNumber: 0,
+    playerNumber: user.playerNumber,
     p1Chips: 0,
     p2Chips: 0,
     gameStarted: false,
@@ -82,8 +87,7 @@ function Game({ roomCode, socket, users }) {
   const [showPopUp, setShowPopUp] = useState(true);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const [isWinner, setIsWinner] = useState(null);
-
-  const { user, setUser } = useContext(userContext);
+  const [restartMessage, setRestartMessage] = useState("");
 
   useEffect(() => {
     if (opponentDisconnected) {
@@ -106,14 +110,8 @@ function Game({ roomCode, socket, users }) {
       playerNumber: user.playerNumber,
     }));
 
-    if (users.length > 1) {
-      setGameState((gameState) => ({
-        ...gameState,
-        playerNumber: user.playerNumber,
-      }));
-      if (!gameStarted) {
-        startGame(socket);
-      }
+    if (users.length > 1 && !gameStarted) {
+      startGame(socket);
     }
   }, []);
 
@@ -140,11 +138,9 @@ function Game({ roomCode, socket, users }) {
   });
 
   useEffect(() => {
+    console.log(gameState, functional);
     switch (turnCount) {
       case 0:
-        // if (p1Chips === 0 || p2Chips === 0) {
-        //   socket.emit("game_state_change", { gameOver: true });
-        // }
         if (gameOver) break;
         gameTurnOne(
           socket,
@@ -159,90 +155,61 @@ function Game({ roomCode, socket, users }) {
       case 8:
         setGameState((gameState) => ({ ...gameState, showCards: true }));
         setFunctional(false);
-        setTimeout(() => {
-          if (
-            (p1Chips === 0 || p2Chips === 0) &&
-            determineWinner(p1Cards, p2Cards, mainDeck) !== "tie"
-          ) {
-            socket.emit("game_state_change", { gameOver: true });
-          } else {
-            setFunctional(true);
-            setGameState((gameState) => ({ ...gameState, showCards: false }));
-          }
-          if (playerNumber === 0) {
-            socket.emit("game_state_change", {
-              restart: true,
-              winner: determineWinner(p1Cards, p2Cards, mainDeck),
-            });
-          }
-        }, 2000);
+        if (
+          (p1Chips === 0 || p2Chips === 0) &&
+          determineWinner(p1Cards, p2Cards, mainDeck) !== "tie"
+        ) {
+          socket.emit("game_state_change", { gameOver: true });
+        } else {
+          setFunctional(true);
+          setGameState((gameState) => ({ ...gameState, showCards: false }));
+        }
+        if (playerNumber === 0) {
+          socket.emit("game_state_change", {
+            restart: true,
+            winner: determineWinner(p1Cards, p2Cards, mainDeck),
+          });
+        }
         break;
     }
   }, [turnCount]);
 
   useEffect(() => {
-    const deck = makeDeck();
-    const tp1Cards = deck.splice(0, 2);
-    const tp2Cards = deck.splice(0, 2);
-    const tmainDeck = deck.splice(0, 5);
     if (gameOver) {
-      switch (winner) {
-        case "p1":
-          socket.emit("game_state_change", {
-            p1Chips: 1000,
-            pot: 0,
-            p2Chips: 0,
-          });
-        case "p2":
-          socket.emit("game_state_change", {
-            p2Chips: 1000,
-            p1Chips: 0,
-            pot: 0,
-          });
-      }
+      return;
     } else if (
       restart &&
       (winner === "p1" || winner === "p2" || winner === "tie")
-    )
-      switch (winner) {
-        case "p1":
-          resetGameState(
-            socket,
-            p1Chips + pot + p2Bet + p1Bet,
-            p2Chips,
-            pot,
-            "p1",
-            tp1Cards,
-            tp2Cards,
-            tmainDeck
-          );
-          break;
-        case "p2":
-          resetGameState(
-            socket,
-            p1Chips,
-            p2Chips + pot + p2Bet + p1Bet,
-            pot,
-            "p2",
-            tp1Cards,
-            tp2Cards,
-            tmainDeck
-          );
-          break;
-        case "tie":
-          resetGameState(
-            socket,
-            p1Chips + pot / 2,
-            p2Chips + pot / 2,
-            pot,
-            "p1",
-            tp1Cards,
-            tp2Cards,
-            tmainDeck
-          );
-          break;
+    ) {
+      setFunctional(false);
+      setGameState((gameState) => ({
+        ...gameState,
+        currentTurn: "none",
+      }));
+      if (winner === "tie") {
+        setRestartMessage("its a draw");
+      } else if (getIsWinner(playerNumber, winner) && turnCount === 8) {
+        setRestartMessage("you had better cards");
+      } else if (getIsWinner(playerNumber, winner)) {
+        setRestartMessage("Your opponent folded");
+      } else {
+        setRestartMessage("You lost");
       }
-    setGameState((gameState) => ({ ...gameState, restart: false }));
+      setTimeout(() => {
+        restartGame(
+          socket,
+          p1Chips,
+          p2Chips,
+          pot,
+          currentTurn,
+          winner,
+          p1Bet,
+          p2Bet
+        );
+        setRestartMessage(null);
+      }, [3000]);
+      setGameState((gameState) => ({ ...gameState, restart: false }));
+    }
   }, [restart]);
 
   useEffect(() => {
@@ -255,105 +222,102 @@ function Game({ roomCode, socket, users }) {
         p2Cards,
         mainDeck,
         users,
-        user
+        user,
+        winner,
+        socket
       );
-      if (isWinner === null) {
-        console.log("false");
-      }
-      axios.post("http://10.0.0.145:3001/api/update-elo", {
-        userId: user.uid,
-        newElo: computeEloChange(
-          user.points,
-          getOpponent(users, user).points,
-          isWinner
-        ),
-      });
+      setIsWinner(isWinner);
     }
   }, [gameOver]);
 
-  // useEffect(() => {
-  //   if (!gameStarted) {
-  //   }
-  // }, [gameStarted]);
-  if (!gameStarted) {
-    return <div>waiting room</div>;
-  }
-
   return (
-    <GameWrapper>
-      {!gameOver ? (
-        <div style={{ height: "75px" }}>
-          <div>View from player {playerNumber + 1}</div>
-          <div>Room code: {user.code}</div>
-          <div>
-            {currentTurn}
-            's turn
-          </div>
+    <>
+      <GameWrapper>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            position: "absolute",
+            width: "100%",
+          }}
+        >
+          {/* <GameLog /> */}
+          {!gameOver ? (
+            <div style={{ height: "75px" }}>
+              <div>View from player {playerNumber + 1}</div>
+              <div>Room code: {user.code}</div>
+              <div>
+                {currentTurn}
+                's turn
+              </div>
+            </div>
+          ) : (
+            <div style={{ height: "75px" }}>
+              <div>Game Over</div>
+              <div>
+                Winner:{" "}
+                {
+                  getUserFromPlayerString(
+                    determineWinner(p1Cards, p2Cards, mainDeck),
+                    users
+                  ).username
+                }
+              </div>
+              <div>
+                <Link to={"/dashboard"}>Leave</Link>
+              </div>
+            </div>
+          )}
         </div>
-      ) : (
-        <div style={{ height: "75px" }}>
-          <div>Game Over</div>
-          <div>
-            Winner:{" "}
-            {
-              getUserFromPlayerString(
-                determineWinner(p1Cards, p2Cards, mainDeck),
-                users
-              ).username
-            }
-          </div>
-          <div>
-            <Link to={"/dashboard"}>Leave</Link>
-          </div>
-        </div>
-      )}
-      <Board
-        playerNumber={playerNumber}
-        pot={pot}
-        users={users}
-        turnCount={turnCount}
-        mainDeck={mainDeck}
-        p1Chips={p1Chips}
-        p2Chips={p2Chips}
-        p1Cards={p1Cards}
-        p2Cards={p2Cards}
-        p1Bet={p1Bet}
-        p2Bet={p2Bet}
-        currentTurn={currentTurn}
-        gameState={gameState}
-        showCards={showCards}
-      />
-      <PlayMenu
-        currentTurn={currentTurn}
-        playerNumber={playerNumber}
-        p1Chips={p1Chips}
-        p2Chips={p2Chips}
-        BB={BB}
-        raiseAmount={raiseAmount}
-        increment={increment}
-        socket={socket}
-        turnCount={turnCount}
-        pot={pot}
-        setRaiseAmount={setRaiseAmount}
-        p1Bet={p1Bet}
-        p2Bet={p2Bet}
-        gameStarted={gameStarted}
-        startingPlayer={startingPlayer}
-        SB={SB}
-        functional={functional}
-        setFunctional={setFunctional}
-        gameOver={gameOver}
-      />
-      {gameOver && showPopUp ? (
-        <GameOverPopup
-          isWinner={isWinner}
-          showPopup={showPopUp}
-          setShowPopUp={setShowPopUp}
+        <Board
+          playerNumber={playerNumber}
+          pot={pot}
           users={users}
-          opponentDisconnected={opponentDisconnected}
+          turnCount={turnCount}
+          mainDeck={mainDeck}
+          p1Chips={p1Chips}
+          p2Chips={p2Chips}
+          p1Cards={p1Cards}
+          p2Cards={p2Cards}
+          p1Bet={p1Bet}
+          p2Bet={p2Bet}
+          currentTurn={currentTurn}
+          gameState={gameState}
+          showCards={showCards}
+          restartMessage={restartMessage}
         />
-      ) : null}
-    </GameWrapper>
+        <PlayMenu
+          currentTurn={currentTurn}
+          playerNumber={playerNumber}
+          p1Chips={p1Chips}
+          p2Chips={p2Chips}
+          BB={BB}
+          raiseAmount={raiseAmount}
+          increment={increment}
+          socket={socket}
+          turnCount={turnCount}
+          pot={pot}
+          setRaiseAmount={setRaiseAmount}
+          p1Bet={p1Bet}
+          p2Bet={p2Bet}
+          gameStarted={gameStarted}
+          startingPlayer={startingPlayer}
+          SB={SB}
+          functional={functional}
+          setFunctional={setFunctional}
+          gameOver={gameOver}
+        />
+        {gameOver && showPopUp ? (
+          <GameOverPopup
+            isWinner={isWinner}
+            showPopup={showPopUp}
+            setShowPopUp={setShowPopUp}
+            users={users}
+            opponentDisconnected={opponentDisconnected}
+          />
+        ) : null}
+      </GameWrapper>
+    </>
   );
 }
 

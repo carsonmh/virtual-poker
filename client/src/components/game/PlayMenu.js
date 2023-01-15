@@ -10,12 +10,14 @@ import {
   Box,
 } from "@chakra-ui/react";
 
+import GameLog from "./GameLog";
+
 const PlayMenuWrapper = styled.div`
   width: 100%;
   background: rgb(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  position: fixed;
+  position: absolute;
   bottom: 0%;
   padding: 15px;
 `;
@@ -86,7 +88,6 @@ function PlayMenu({
   const [allIn, setAllIn] = useState(false);
   const [raiseButtonVisible, setRaiseButtonVisible] = useState(true);
   const [raising, setRaising] = useState(false);
-  let playerChips = [p1Chips, p2Chips];
 
   useEffect(() => {
     const maxBet = 10 + Math.max(p1Bet, p2Bet);
@@ -108,12 +109,12 @@ function PlayMenu({
   useEffect(
     () => {
       if (
-        (playerNumber === 0 && currentTurn === "p2") ||
-        (playerNumber === 1 && currentTurn === "p1")
+        (playerNumber === 0 && currentTurn === "p1") ||
+        (playerNumber === 1 && currentTurn === "p2")
       ) {
-        setFunctional(false);
-      } else {
         setFunctional(true);
+      } else {
+        setFunctional(false);
       }
     },
     [currentTurn],

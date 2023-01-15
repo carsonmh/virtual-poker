@@ -4,12 +4,12 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { Tooltip } from "@chakra-ui/react";
 
-import Loading from "../components/Loading";
+import Loading from "../components/loading/Loading";
 import userContext from "../contexts/user/userContext";
 import { handleGoogleLogout, logUserIn } from "../auth/auth";
 import { generateRoomCode } from "../utils/Utils";
 import LeaderboardIcon from "../assets/icons8-podium-64.png";
-import StyledButton from "../components/StyledButton";
+import StyledButton from "../components/buttons/StyledButton";
 
 const GameCodeInput = styled.input`
   width: 250px;

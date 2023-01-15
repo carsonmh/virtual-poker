@@ -7,11 +7,11 @@ import axios from "axios";
 
 import userContext from "../contexts/user/userContext";
 import { checkUserToken, handleGoogleLogout, logUserIn } from "../auth/auth";
-import LogInWithGoogleButton from "../components/home/LogInWithGoogleButton";
-import InputField from "../components/home/InputField";
+import LogInWithGoogleButton from "../components/buttons/LogInWithGoogleButton";
+import InputField from "../components/forms/InputField";
 import { useNavigate } from "react-router";
 import PokerBackground from "../assets/9e071a09af668c11512375ab1b8bdb3b.jpeg";
-import Loading from "../components/Loading";
+import Loading from "../components/loading/Loading";
 import BlackDesign from "../assets/black-design.jpeg";
 
 import { generateRoomCode } from "../utils/Utils";

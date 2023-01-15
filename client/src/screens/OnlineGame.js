@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { logUserIn } from "../auth/auth";
 import userContext from "../contexts/user/userContext";
 import Game from "./Game";
-import Loading from "../components/Loading";
 import GameQueue from "../components/game/GameQueue";
 
 function OnlineGame({ socket }) {
@@ -28,6 +27,7 @@ function OnlineGame({ socket }) {
     if (user.username && !userJoined) {
       setUserJoined(true);
       socket.emit("join_matchmaking", { ...user });
+      console.log(user);
     }
   }, [user]);
   return (

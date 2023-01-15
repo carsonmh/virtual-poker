@@ -1,8 +1,11 @@
 import { makeDeck } from "../components/game/Deck";
+import axios from "axios";
+
 import {
   determineWinner,
   getUserFromPlayerString,
   computeEloChange,
+  getOpponent,
 } from "../utils/Utils";
 
 function startGame(socket) {
@@ -21,6 +24,7 @@ function startGame(socket) {
     p2Cards: [...tp2Cards],
     mainDeck: [...tmainDeck],
     currentTurn: "p1",
+    startingPlayer: "p1",
   });
 }
 
@@ -49,32 +53,6 @@ function gameTurnOne(
   }
 }
 
-function resetGameState(
-  socket,
-  p1Chips,
-  p2Chips,
-  pot,
-  currentTurn,
-  p1Cards,
-  p2Cards,
-  mainDeck
-) {
-  socket.emit("game_state_change", {
-    p1Chips: p1Chips,
-    p2Chips: p2Chips,
-    pot: 0,
-    currentTurn: currentTurn,
-    p1Cards: [...p1Cards],
-    p2Cards: [...p2Cards],
-    mainDeck: [...mainDeck],
-    turnCount: 0,
-    restart: false,
-    winner: "none",
-    p1Bet: 0,
-    p2Bet: 0,
-  });
-}
-
 function endGame(
   playerNumber,
   opponentDisconnected,
@@ -82,10 +60,27 @@ function endGame(
   p2Cards,
   mainDeck,
   users,
-  user
+  user,
+  winner,
+  socket
 ) {
   let winnerP;
   let isWinner;
+
+  switch (winner) {
+    case "p1":
+      socket.emit("game_state_change", {
+        p1Chips: 1000,
+        pot: 0,
+        p2Chips: 0,
+      });
+    case "p2":
+      socket.emit("game_state_change", {
+        p2Chips: 1000,
+        p1Chips: 0,
+        pot: 0,
+      });
+  }
 
   if (opponentDisconnected) {
     winnerP = playerNumber === 0 ? "p1" : "p2";
@@ -115,7 +110,103 @@ function endGame(
     opponentUser.points,
     isWinner
   );
+
+  axios.post("http://10.0.0.145:3001/api/update-elo", {
+    userId: user.uid,
+    newElo: computeEloChange(
+      user.points,
+      getOpponent(users, user).points,
+      isWinner
+    ),
+  });
   return isWinner;
 }
 
-export { startGame, gameTurnOne, resetGameState, endGame };
+async function restartGame(
+  socket,
+  p1Chips,
+  p2Chips,
+  pot,
+  currentTurn,
+  winner,
+  p1Bet,
+  p2Bet
+) {
+  const deck = makeDeck();
+  const tp1Cards = deck.splice(0, 2);
+  const tp2Cards = deck.splice(0, 2);
+  const tmainDeck = deck.splice(0, 5);
+  switch (winner) {
+    case "p1":
+      resetGameState(
+        socket,
+        p1Chips + pot + p2Bet + p1Bet,
+        p2Chips,
+        pot,
+        "p1",
+        tp1Cards,
+        tp2Cards,
+        tmainDeck
+      );
+      break;
+    case "p2":
+      resetGameState(
+        socket,
+        p1Chips,
+        p2Chips + pot + p2Bet + p1Bet,
+        pot,
+        "p2",
+        tp1Cards,
+        tp2Cards,
+        tmainDeck
+      );
+      break;
+    case "tie":
+      resetGameState(
+        socket,
+        p1Chips + pot / 2,
+        p2Chips + pot / 2,
+        pot,
+        "p1",
+        tp1Cards,
+        tp2Cards,
+        tmainDeck
+      );
+      break;
+  }
+}
+
+function setUserChips(socket, p1Chips, p2Chips) {
+  socket.emit("game_state_change", {
+    p1Chips: p1Chips,
+    p2Chips: p2Chips,
+    pot: 0,
+    p1Bet: 0,
+    p2Bet: 0,
+  });
+}
+
+function resetGameState(
+  socket,
+  p1Chips,
+  p2Chips,
+  pot,
+  currentTurn,
+  p1Cards,
+  p2Cards,
+  mainDeck
+) {
+  setUserChips(socket, p1Chips, p2Chips);
+  socket.emit("game_state_change", {
+    currentTurn: currentTurn,
+    p1Cards: [...p1Cards],
+    p2Cards: [...p2Cards],
+    mainDeck: [...mainDeck],
+    turnCount: 0,
+    restart: false,
+    winner: "none",
+    startingPlayer: currentTurn,
+  });
+}
+
+export { startGame, gameTurnOne, resetGameState, endGame, restartGame };

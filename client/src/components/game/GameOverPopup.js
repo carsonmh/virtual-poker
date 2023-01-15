@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 import userContext from "../../contexts/user/userContext";
-import StyledButton from "../StyledButton";
+import StyledButton from "../buttons/StyledButton";
 import { computeEloChange, getOpponent } from "../../utils/Utils";
 
 const GameOverPopupWrapper = styled.div`

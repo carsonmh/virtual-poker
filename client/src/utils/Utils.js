@@ -53,10 +53,18 @@ function getOpponent(users, user) {
   return users.filter((user) => user.playerNumber !== playerNumber)[0];
 }
 
+function getIsWinner(playerNumber, winner) {
+  return (
+    (playerNumber === 0 && winner === "p1") ||
+    (playerNumber === 1 && winner === "p2")
+  );
+}
+
 export {
   generateRoomCode,
   determineWinner,
   getUserFromPlayerString,
   computeEloChange,
   getOpponent,
+  getIsWinner,
 };
