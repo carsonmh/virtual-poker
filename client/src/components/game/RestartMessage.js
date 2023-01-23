@@ -4,26 +4,30 @@ import CountdownTimer from "../timers/CountdownTimer";
 
 const RestartMesageWrapper = styled.div`
   position: absolute;
-  width: 200px;
   height: 100px;
-  background: yellow;
+  width: 210px;
   top: 80%;
   left: 70%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
 `;
 
 function RestartMessage({ message, time }) {
   return (
     <>
-      <RestartMesageWrapper>
-        <div>{message}</div>
-        <div>
-          <CountdownTimer seconds={time} /> until next round...
-        </div>
-      </RestartMesageWrapper>
+      {message ? (
+        <RestartMesageWrapper>
+          <div>{message}</div>
+          <div style={{ fontSize: "15px", color: "rgba(225, 225, 225, .7)" }}>
+            <CountdownTimer seconds={time} /> seconds until next round
+          </div>
+        </RestartMesageWrapper>
+      ) : null}
     </>
   );
 }

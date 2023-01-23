@@ -1,21 +1,8 @@
 import styled from "styled-components";
 import Card from "./Card";
+import BlankCard from "./BlankCard";
 
 import { useEffect, useState } from "react";
-
-const BlankCard = styled.div`
-  width: 45px;
-  height: 70px;
-  justify-content: space-around;
-  border: solid 1.5px white;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: black;
-  color: red;
-  font-weight: bold;
-`;
 
 const PlayerSlotDiv = styled.div`
   border-radius: 1000px;
@@ -80,6 +67,30 @@ function PlayerSlot({
 
   return (
     <PlayerSlotWrapper style={{ opacity: thisTurn ? "100%" : "50%" }}>
+      <div
+        style={{
+          position: "absolute",
+          width: "115px",
+          height: "115px",
+          background: "rgba(255, 255, 255, .1)",
+          borderRadius: "1000px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: "0",
+          visibility: thisTurn ? "visible" : "hidden",
+          transform: "translateY(-7px)",
+        }}
+      >
+        <div
+          style={{
+            width: "100px",
+            height: "100px",
+            background: "rgba(255, 255, 255, .2)",
+            borderRadius: "1000px",
+          }}
+        ></div>
+      </div>
       <CardWrapper>
         {showCards || isCurrentUser ? (
           <>

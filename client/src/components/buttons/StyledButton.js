@@ -5,13 +5,12 @@ const StyledButton = styled.button`
   border-radius: 5px;
   padding: 10px;
   width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.9);
   }
 `;
 

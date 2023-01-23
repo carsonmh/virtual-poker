@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { Tooltip } from "@chakra-ui/react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 import Loading from "../components/loading/Loading";
 import userContext from "../contexts/user/userContext";
@@ -81,9 +82,44 @@ const GameMenuWrapper = styled.div`
   border-radius: 20px;
 `;
 
+const Dropdown = styled.ul`
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  background-color: white;
+  list-style: none;
+  padding: 5px;
+  margin: 5px;
+  margin-right: 10px;
+  border-radius: 5px;
+  right: 0;
+  opacity: 0;
+  transition: all 100ms ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+`;
+
+const TextLink = styled.a`
+  border-bottom: 2px solid #85bf99;
+  font-weight: bold;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: #85bf99;
+    color: black;
+  }
+`;
+
+const DropdownItem = styled.li``;
+
 function Dashboard({ socket }) {
   const { user, setUser } = useContext(userContext);
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -146,6 +182,9 @@ function Dashboard({ socket }) {
           height: "100%",
           overflow: "hidden",
         }}
+        onClick={() => {
+          menuOpen && setMenuOpen(false);
+        }}
       >
         <Navbar>
           <ul
@@ -157,23 +196,13 @@ function Dashboard({ socket }) {
               alignItems: "center",
             }}
           >
-            <NavItem style={{ marginRight: "auto" }}>
-              <button onClick={() => !handleGoogleLogout(setUser)}>
-                Logout
-              </button>
-            </NavItem>
             <NavItem>
               <Link to="/leaderboard">
                 <img width="30" src={LeaderboardIcon} />
               </Link>
             </NavItem>
             <NavItem>
-              <Tooltip
-                hasArrow
-                label="Poker Rating"
-                bg="gray.300"
-                color="black"
-              >
+              <Tooltip hasArrow label="Poker Rating" bg="white" color="black">
                 <div
                   style={{
                     background: "white",
@@ -187,7 +216,31 @@ function Dashboard({ socket }) {
               </Tooltip>
             </NavItem>
             <NavItem>
-              <h1>Hello, {user.username}</h1>
+              <button
+                onClick={() => {
+                  setMenuOpen(!menuOpen);
+                }}
+                style={{
+                  width: "auto",
+                  padding: "5px",
+                  background: "white",
+                  borderRadius: "5px",
+                }}
+              >
+                Hello, {user.username} <ChevronDownIcon />
+              </button>
+              {/* {menuOpen ? ( */}
+              <Dropdown
+                style={{
+                  height: menuOpen ? "30px" : "0",
+                  visibility: menuOpen ? "visible" : "hidden",
+                  opacity: menuOpen ? "1" : "0",
+                }}
+                onClick={() => handleGoogleLogout(setUser)}
+              >
+                <DropdownItem>Logout</DropdownItem>
+              </Dropdown>
+              {/* ) : null} */}
             </NavItem>
           </ul>
         </Navbar>
@@ -311,27 +364,30 @@ function Dashboard({ socket }) {
                   padding: "20px",
                 }}
               >
-                <GameModeHeader>Lorem, ipsum.</GameModeHeader>
-                <p style={{ color: "#85BF99" }}>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Aliquam ea molestiae, eveniet, est fuga dolore ducimus aliquid
-                  totam, blanditiis quos doloremque delectus mollitia
-                  aspernatur? Earum voluptatem quod accusamus! Deserunt
-                  architecto libero magni. Ratione dolor laborum consequatur ex
-                  distinctio illum omnis aliquid error officia rerum quibusdam
-                  impedit vel porro, obcaecati hic nam consectetur animi illo
-                  fugit temporibus molestiae! Doloremque itaque eum illo,
-                  mollitia asperiores molestiae voluptas odit voluptates tempore
-                  soluta consequuntur, repudiandae non necessitatibus, beatae
-                  quas! Unde quod id labore quidem impedit dolores autem maxime
-                  odit amet quaerat accusamus fugiat ducimus natus, ex ipsam
-                  praesentium sit laboriosam officiis, soluta saepe itaque?
-                  Atque saepe ullam id voluptatem delectus quam fugit vel natus
-                  distinctio ad culpa quo omnis qui, dolore quod nam. Doloremque
-                  maiores excepturi quae vel quo qui sed. Placeat, fugiat eos!
-                  Laborum harum voluptatibus veniam nemo! Laborum esse non
-                  dolorem nam facere incidunt doloremque corrupti autem quos.
-                  Repellendus laboriosam perferendis dolorem.
+                <GameModeHeader>How to Play</GameModeHeader>
+                <p style={{ color: "#85BF99", fontSize: "17px" }}>
+                  Try to beat the other player by taking all of their chips.
+                  Rules are the same as two player{" "}
+                  <TextLink
+                    target="_blank"
+                    href="https://en.wikipedia.org/wiki/Texas_hold_%27em"
+                  >
+                    No Limit Texas Holdem
+                  </TextLink>
+                  .
+                </p>
+                <GameModeHeader style={{ marginTop: "15px" }}>
+                  Why is Poker fun
+                </GameModeHeader>
+                <p style={{ color: "#85BF99", fontSize: "17px" }}>
+                  Poker is a fun and exciting game as it combines chance and
+                  strategy. It is unpredictable and requires a lot of skill and
+                  strategy to outsmart opponents. Additionally, it tests
+                  emotional and psychological stamina and can be played
+                  socially. The potential of winning money adds an extra layer
+                  of excitement. Overall, poker offers a unique combination of
+                  chance, strategy, skill, and social interaction, creating an
+                  engaging and exciting experience.
                 </p>
               </ScrollableMenuPanel>
             </div>

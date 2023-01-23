@@ -38,7 +38,24 @@ io.on("connection", (socket) => {
     }
     if (socket.data && socket.data.roomCode) {
       io.to(socket.data.roomCode).emit("opponent_disconnected", socket.data);
+      socket.leave(socket.data.roomCode, (err) => {
+        if (err) throw err;
+        console.log("left");
+      });
+      socket.data.roomCode = null;
     }
+  });
+
+  socket.on("leave_game", () => {
+    if (socket.data && socket.data.roomCode) {
+      console.log("leaving game");
+      io.to(socket.data.roomCode).emit("opponent_disconnected", socket.data);
+      socket.leave(socket.data.roomCode, (err) => {
+        if (err) throw err;
+      });
+      socket.data.roomCode = null;
+    }
+    console.log(socket.data);
   });
 
   socket.on("leave_matchmaking", () => {

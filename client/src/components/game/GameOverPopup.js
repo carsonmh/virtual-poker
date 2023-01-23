@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import userContext from "../../contexts/user/userContext";
 import StyledButton from "../buttons/StyledButton";
 import { computeEloChange, getOpponent } from "../../utils/Utils";
+import { flexbox } from "@chakra-ui/react";
 
 const GameOverPopupWrapper = styled.div`
   position: absolute;
@@ -26,6 +27,7 @@ function GameOverPopup({
   showPopup,
   setShowPopUp,
   opponentDisconnected,
+  socket,
 }) {
   const { user, setUser } = useContext(userContext);
   return (
@@ -56,7 +58,7 @@ function GameOverPopup({
       <p>
         {opponentDisconnected
           ? "Opponent Disconnected"
-          : "You Beat The Other Player"}
+          : "You Beat the Other Player"}
       </p>
       <p>
         Poker Rank:{" "}
@@ -111,6 +113,11 @@ function GameOverPopup({
             top: "90px",
             color: "white",
             fontWeight: "bold",
+            marginRight: "auto",
+            marginLeft: "auto",
+          }}
+          onClick={() => {
+            socket.emit("leave_game");
           }}
         >
           Back to Menu

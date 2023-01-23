@@ -101,7 +101,6 @@ function Home() {
         userId: authUser.uid,
       })
       .then((result) => {
-        console.log("hello world");
         setUser((user) => ({ ...user, loggedIn: true }));
         authUser.getIdToken().then((token) => {
           localStorage.setItem("user-token", "Bearer " + token);

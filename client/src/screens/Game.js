@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 import Board from "../components/game/Board";
 import PlayMenu from "../components/game/PlayMenu";
@@ -25,6 +26,7 @@ import GameOverPopup from "../components/game/GameOverPopup";
 import { auth } from "../config/firebase-config";
 import GameLog from "../components/game/GameLog";
 import RestartMessage from "../components/game/RestartMessage";
+import StyledButton from "../components/buttons/StyledButton";
 
 const GameWrapper = styled.div`
   display: grid;
@@ -89,6 +91,8 @@ function Game({ roomCode, socket, users }) {
   const [isWinner, setIsWinner] = useState(null);
   const [restartMessage, setRestartMessage] = useState("");
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (opponentDisconnected) {
       setIsWinner(true);
@@ -111,11 +115,14 @@ function Game({ roomCode, socket, users }) {
     }));
 
     if (users.length > 1 && !gameStarted) {
-      startGame(socket);
+      if (playerNumber === 1) {
+        startGame(socket);
+      }
     }
   }, []);
 
   socket.on("game_state_change", (state) => {
+    console.log(state);
     setGameState((gameState) => ({ ...gameState, ...state }));
   });
 
@@ -187,9 +194,9 @@ function Game({ roomCode, socket, users }) {
         currentTurn: "none",
       }));
       if (winner === "tie") {
-        setRestartMessage("its a draw");
+        setRestartMessage("It's a draw");
       } else if (getIsWinner(playerNumber, winner) && turnCount === 8) {
-        setRestartMessage("you had better cards");
+        setRestartMessage("You have better cards");
       } else if (getIsWinner(playerNumber, winner)) {
         setRestartMessage("Your opponent folded");
       } else {
@@ -244,12 +251,19 @@ function Game({ roomCode, socket, users }) {
           {/* <GameLog /> */}
           {!gameOver ? (
             <div style={{ height: "75px" }}>
-              <div>View from player {playerNumber + 1}</div>
-              <div>Room code: {user.code}</div>
-              <div>
-                {currentTurn}
-                's turn
-              </div>
+              <StyledButton
+                style={{
+                  width: "125px",
+                  marginTop: "10px",
+                  marginLeft: "10px",
+                }}
+                onClick={() => {
+                  socket.emit("leave_game");
+                  navigate("/dashboard");
+                }}
+              >
+                Leave Game
+              </StyledButton>
             </div>
           ) : (
             <div style={{ height: "75px" }}>
@@ -314,6 +328,7 @@ function Game({ roomCode, socket, users }) {
             setShowPopUp={setShowPopUp}
             users={users}
             opponentDisconnected={opponentDisconnected}
+            socket={socket}
           />
         ) : null}
       </GameWrapper>

@@ -246,13 +246,19 @@ function PlayMenu({
         }}
       >
         <StyledButton
-          style={{ background: "rgb(156, 60, 53)" }}
+          style={{
+            background: "rgb(156, 60, 53)",
+            opacity: functional ? "100%" : "75%",
+          }}
           onClick={() => foldHandler()}
         >
           Fold
         </StyledButton>
         <StyledButton
-          style={{ background: "rgb(69, 91, 173)" }}
+          style={{
+            background: "rgb(69, 91, 173)",
+            opacity: functional ? "100%" : "75%",
+          }}
           onClick={() => callHandler()}
         >
           Call
@@ -304,8 +310,9 @@ function PlayMenu({
         ) : null}
         <StyledButton
           style={{
-            width: "125px",
+            width: raising ? "125px" : "115px",
             visibility: raiseButtonVisible ? "visible" : "hidden",
+            opacity: functional ? "100%" : "75%",
           }}
           onClick={(e) => raiseHandler(e)}
         >

@@ -46,9 +46,7 @@ function gameTurnOne(
     p2Bet: currentTurn === "p1" ? BB : SB,
     startingPlayer: currentTurn,
   };
-  if (currentTurn === "p1" && playerNumber === 0) {
-    socket.emit("game_state_change", newGameState);
-  } else if (currentTurn === "p2" && playerNumber === 1) {
+  if (playerNumber === 1) {
     socket.emit("game_state_change", newGameState);
   }
 }
