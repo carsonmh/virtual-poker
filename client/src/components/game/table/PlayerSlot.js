@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import Card from "./Card";
-import BlankCard from "./BlankCard";
+import Card from "../cards/Card";
+import BlankCard from "../cards/BlankCard";
 
 import { useEffect, useState } from "react";
 

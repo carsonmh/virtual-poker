@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import PlayerSlot from "./PlayerSlot";
 import BetAmount from "./BetAmount";
-import RestartMessage from "./RestartMessage";
+import RestartMessage from "../message/RestartMessage";
 import TableCards from "./TableCards";
 import Pot from "./Pot";
 

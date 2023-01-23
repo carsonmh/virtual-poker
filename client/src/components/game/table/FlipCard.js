@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import BlankCard from "./BlankCard";
-import Card from "./Card";
+import BlankCard from "../cards/BlankCard";
+import Card from "../cards/Card";
 
 const FlipCardWrapper = styled.div`
   background-color: transparent;

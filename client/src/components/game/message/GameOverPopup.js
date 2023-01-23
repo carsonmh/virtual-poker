@@ -2,9 +2,9 @@ import React, { useState, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-import userContext from "../../contexts/user/userContext";
-import StyledButton from "../buttons/StyledButton";
-import { computeEloChange, getOpponent } from "../../utils/Utils";
+import userContext from "../../../contexts/user/userContext";
+import StyledButton from "../../buttons/StyledButton";
+import { computeEloChange, getOpponent } from "../../../utils/Utils";
 import { flexbox } from "@chakra-ui/react";
 
 const GameOverPopupWrapper = styled.div`

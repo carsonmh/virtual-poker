@@ -3,7 +3,7 @@ import { useState, useContext, useEffect } from "react";
 import Game from "./Game";
 import UserContext from "../contexts/user/userContext";
 import { logUserIn } from "../auth/auth";
-import PrivateRoomWaiting from "../components/game/PrivateWaitingRoom";
+import PrivateRoomWaiting from "../components/game/waiting/PrivateWaitingRoom";
 
 function PrivateGame({ socket }) {
   const [users, setUsers] = useState([]);

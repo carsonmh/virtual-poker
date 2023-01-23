@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-import StyledButton from "../buttons/StyledButton";
+import StyledButton from "../../buttons/StyledButton";
 
 function PrivateRoomWaiting({ socket, roomCode }) {
   return (

@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { logUserIn } from "../auth/auth";
 import userContext from "../contexts/user/userContext";
 import Game from "./Game";
-import GameQueue from "../components/game/GameQueue";
+import GameQueue from "../components/game/waiting/GameQueue";
 
 function OnlineGame({ socket }) {
   const [matchFound, setMatchFound] = useState(false);

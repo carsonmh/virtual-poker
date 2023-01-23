@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import ChipIcon from "../../assets/icons8-chip-16.png";
+import ChipIcon from "../../../assets/icons8-chip-16.png";
 
 const BetAmountDiv = styled.div`
   width: 75px;

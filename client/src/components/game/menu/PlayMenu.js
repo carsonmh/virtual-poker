@@ -10,7 +10,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 
-import GameLog from "./GameLog";
+import GameLog from "../message/GameLog";
 
 const PlayMenuWrapper = styled.div`
   width: 100%;

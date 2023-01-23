@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import ClubSvg from "../../assets/suits/club-suit-svgrepo-com.svg";
-import HeartSvg from "../../assets/suits/heart-suit-svgrepo-com.svg";
-import SpadeSvg from "../../assets/suits/spade-suit-svgrepo-com.svg";
-import DiamondSvg from "../../assets/suits/diamond-suit-svgrepo-com.svg";
+import ClubSvg from "../../../assets/suits/club-suit-svgrepo-com.svg";
+import HeartSvg from "../../../assets/suits/heart-suit-svgrepo-com.svg";
+import SpadeSvg from "../../../assets/suits/spade-suit-svgrepo-com.svg";
+import DiamondSvg from "../../../assets/suits/diamond-suit-svgrepo-com.svg";
 
 const StyledCard = styled.div`
   width: 45px;

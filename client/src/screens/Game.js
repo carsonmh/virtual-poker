@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router";
 
-import Board from "../components/game/Board";
-import PlayMenu from "../components/game/PlayMenu";
+import Board from "../components/game/table/Board";
+import PlayMenu from "../components/game/menu/PlayMenu";
 import { makeDeck } from "../components/game/Deck";
 import {
   computeEloChange,
@@ -22,10 +22,10 @@ import {
   endGame,
   restartGame,
 } from "../utils/GameFunctions";
-import GameOverPopup from "../components/game/GameOverPopup";
+import GameOverPopup from "../components/game/message/GameOverPopup";
 import { auth } from "../config/firebase-config";
-import GameLog from "../components/game/GameLog";
-import RestartMessage from "../components/game/RestartMessage";
+import GameLog from "../components/game/message/GameLog";
+import RestartMessage from "../components/game/message/RestartMessage";
 import StyledButton from "../components/buttons/StyledButton";
 
 const GameWrapper = styled.div`

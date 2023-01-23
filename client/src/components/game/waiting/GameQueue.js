@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { Bars } from "react-loader-spinner";
 
-import StyledButton from "../buttons/StyledButton";
+import StyledButton from "../../buttons/StyledButton";
 
 function GameQueue({ socket }) {
   function handleLeaveMatchmaking() {

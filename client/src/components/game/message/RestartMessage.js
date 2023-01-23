@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import CountdownTimer from "../timers/CountdownTimer";
+import CountdownTimer from "../../timers/CountdownTimer";
 
 const RestartMesageWrapper = styled.div`
   position: absolute;
