@@ -55,11 +55,7 @@ function GameOverPopup({
           You Lose
         </h1>
       )}
-      <p>
-        {opponentDisconnected
-          ? "Opponent Disconnected"
-          : "You Beat the Other Player"}
-      </p>
+      <p>{opponentDisconnected ? "Opponent Disconnected" : "Game Ended"}</p>
       <p>
         Poker Rank:{" "}
         {Math.round(

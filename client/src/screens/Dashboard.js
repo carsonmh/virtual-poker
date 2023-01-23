@@ -96,7 +96,7 @@ const Dropdown = styled.ul`
   border-radius: 5px;
   right: 0;
   opacity: 0;
-  transition: all 100ms ease;
+  transition: all 100ms linear;
 
   &:hover {
     background: rgba(255, 255, 255, 0.9);

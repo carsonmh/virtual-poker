@@ -169,7 +169,6 @@ function Game({ roomCode, socket, users }) {
           socket.emit("game_state_change", { gameOver: true });
         } else {
           setFunctional(true);
-          setGameState((gameState) => ({ ...gameState, showCards: false }));
         }
         if (playerNumber === 0) {
           socket.emit("game_state_change", {
@@ -211,7 +210,8 @@ function Game({ roomCode, socket, users }) {
           currentTurn,
           winner,
           p1Bet,
-          p2Bet
+          p2Bet,
+          playerNumber
         );
         setRestartMessage(null);
       }, [3000]);

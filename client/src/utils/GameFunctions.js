@@ -128,8 +128,16 @@ async function restartGame(
   currentTurn,
   winner,
   p1Bet,
-  p2Bet
+  p2Bet,
+  playerNumber
 ) {
+  if (
+    (playerNumber === 0 && winner === "p2") ||
+    (playerNumber === 1 && winner === "p1") ||
+    (winner === "tie" && playerNumber === 1)
+  ) {
+    return;
+  }
   const deck = makeDeck();
   const tp1Cards = deck.splice(0, 2);
   const tp2Cards = deck.splice(0, 2);
@@ -204,6 +212,7 @@ function resetGameState(
     restart: false,
     winner: "none",
     startingPlayer: currentTurn,
+    showCards: false,
   });
 }
 

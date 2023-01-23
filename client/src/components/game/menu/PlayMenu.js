@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import CallButton from "./CallButton";
+import MenuButton from "./MenuButton";
+
 import {
   Button,
   Slider,
@@ -20,27 +23,6 @@ const PlayMenuWrapper = styled.div`
   position: absolute;
   bottom: 0%;
   padding: 15px;
-`;
-
-const StyledButton = styled.button`
-  background: rgba(85, 160, 110, 0.6);
-  padding: 2px;
-  color: white;
-  width: 100px;
-  height: 25px;
-  margin: 10px;
-  border-radius: 100px;
-  font-weight: 550;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    box-shadow: inset 0 0 0 10em rgba(255, 255, 255, 0.1);
-  }
-  &:active {
-    box-shadow: inset 0 0 0 10em rgba(255, 255, 255, 0.2);
-  }
 `;
 
 const SliderWrapper = styled.div`
@@ -245,7 +227,7 @@ function PlayMenu({
           marginLeft: "50px",
         }}
       >
-        <StyledButton
+        <MenuButton
           style={{
             background: "rgb(156, 60, 53)",
             opacity: functional ? "100%" : "75%",
@@ -253,21 +235,13 @@ function PlayMenu({
           onClick={() => foldHandler()}
         >
           Fold
-        </StyledButton>
-        <StyledButton
-          style={{
-            background: "rgb(69, 91, 173)",
-            opacity: functional ? "100%" : "75%",
-          }}
-          onClick={() => callHandler()}
-        >
-          Call
-          <span
-            style={{ color: "yellow", marginLeft: functional ? "7px" : "0" }}
-          >
-            {functional ? Math.abs(p1Bet - p2Bet) : ""}
-          </span>
-        </StyledButton>
+        </MenuButton>
+        <CallButton
+          functional={functional}
+          p1Bet={p1Bet}
+          p2Bet={p2Bet}
+          callHandler={callHandler}
+        />
       </div>
       <div
         style={{
@@ -308,7 +282,7 @@ function PlayMenu({
             />{" "}
           </>
         ) : null}
-        <StyledButton
+        <MenuButton
           style={{
             width: raising ? "125px" : "115px",
             visibility: raiseButtonVisible ? "visible" : "hidden",
@@ -327,7 +301,7 @@ function PlayMenu({
               </span>
             </>
           ) : null}
-        </StyledButton>
+        </MenuButton>
       </div>
     </PlayMenuWrapper>
   );
