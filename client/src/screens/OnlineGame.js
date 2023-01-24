@@ -16,10 +16,10 @@ function OnlineGame({ socket }) {
     logUserIn(setUser);
 
     socket.on("match_found", (data) => {
-      setMatchFound(true);
       setRoomCode(data.user.roomCode);
       setUsers(() => data.allUsers);
       setUser((user) => ({ ...user, playerNumber: data.user.playerNumber }));
+      setMatchFound(true);
     });
   }, []);
 
@@ -27,7 +27,6 @@ function OnlineGame({ socket }) {
     if (user.username && !userJoined) {
       setUserJoined(true);
       socket.emit("join_matchmaking", { ...user });
-      console.log(user);
     }
   }, [user]);
   return (

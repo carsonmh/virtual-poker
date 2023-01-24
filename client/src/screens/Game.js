@@ -114,13 +114,11 @@ function Game({ roomCode, socket, users }) {
       ...gameState,
       playerNumber: user.playerNumber,
     }));
-    setTimeout(() => {
-      if (users.length > 1 && !gameStarted) {
-        if (playerNumber === 1) {
-          startGame(socket);
-        }
+    if (users.length > 1 && !gameStarted) {
+      if (playerNumber === 1) {
+        startGame(socket);
       }
-    }, [1000]);
+    }
   }, []);
 
   socket.on("game_state_change", (state) => {
