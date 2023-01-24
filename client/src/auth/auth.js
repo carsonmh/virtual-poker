@@ -11,7 +11,7 @@ function handleGoogleSignIn(setUser, setLoggedInWithGoogle) {
       const token = credential.accessToken;
       const user = result.user;
       axios
-        .get("http://localhost:3001/api/get-users")
+        .get("https://lunar-marker-335505.uw.r.appspot.com/api/get-users")
         .then((result) => {
           setLoggedInWithGoogle(true);
           const resData = result.data[user.uid];
@@ -64,7 +64,7 @@ function logUserIn(setUser) {
         })
         .catch((error) => console.log(error));
       axios
-        .get("http://localhost:3001/api/get-users")
+        .get("https://lunar-marker-335505.uw.r.appspot.com/api/get-users")
         .then((result) => {
           const resData = result.data[uid];
           if (!resData) {
@@ -94,7 +94,7 @@ async function checkUserToken() {
     return false;
   }
   return axios
-    .get("http://localhost:3001/api/check-auth", {
+    .get("https://lunar-marker-335505.uw.r.appspot.com/api/check-auth", {
       headers: { authorization: userToken },
     })
     .then((result) => {

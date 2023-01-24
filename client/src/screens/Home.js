@@ -93,7 +93,7 @@ function Home() {
       return;
     }
     axios
-      .post("http://localhost:3001/api/signup", {
+      .post("https://lunar-marker-335505.uw.r.appspot.com/api/signup", {
         username: username
           ? username
           : authUser.displayName + generateRoomCode(),
@@ -203,8 +203,7 @@ function Home() {
                       Pick a Username
                     </h1>
                     <p style={{ fontSize: "14px" }}>
-                      Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                      Nihil libero omnis nesciunt aut atque fuga!
+                      Choose wisely, as your username can only be changed once!
                     </p>
                   </div>
                   <div

@@ -11,7 +11,7 @@ import Dashboard from "./screens/Dashboard";
 import OnlineGame from "./screens/OnlineGame";
 import Leaderboard from "./screens/Leaderboard";
 
-const socket = io.connect("http://localhost:3001");
+const socket = io.connect("https://lunar-marker-335505.uw.r.appspot.com");
 
 function App() {
   return (
