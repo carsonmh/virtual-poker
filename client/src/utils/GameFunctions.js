@@ -109,7 +109,7 @@ function endGame(
     isWinner
   );
 
-  axios.post("http://localhost:3001/api/update-elo", {
+  axios.post("https://lunar-marker-335505.uw.r.appspot.com/api/update-elo", {
     userId: user.uid,
     newElo: computeEloChange(
       user.points,

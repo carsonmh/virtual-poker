@@ -136,7 +136,7 @@ function Game({ roomCode, socket, users }) {
     }));
     setFunctional(false);
     setOpponentDisconnected(true);
-    axios.post("http://localhost:3001/api/update-elo", {
+    axios.post("https://lunar-marker-335505.uw.r.appspot.com/api/update-elo", {
       userId: userData.uid,
       newElo: computeEloChange(
         getOpponent(users, user).points,
