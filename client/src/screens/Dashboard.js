@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { Tooltip } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
+import GitHubButton from "react-github-btn";
 
 import Loading from "../components/loading/Loading";
 import userContext from "../contexts/user/userContext";
@@ -11,6 +12,7 @@ import { handleGoogleLogout, logUserIn } from "../auth/auth";
 import { generateRoomCode } from "../utils/Utils";
 import LeaderboardIcon from "../assets/icons8-podium-64.png";
 import StyledButton from "../components/buttons/StyledButton";
+import PokerLogo from "../assets/poker-logo.png";
 
 const GameCodeInput = styled.input`
   width: 250px;
@@ -196,6 +198,24 @@ function Dashboard({ socket }) {
               alignItems: "center",
             }}
           >
+            <NavItem
+              style={{
+                marginRight: "auto",
+                display: "flex",
+                alignItems: "center",
+                color: "white",
+                fontWeight: "bold",
+              }}
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              POKER
+              <img
+                style={{ width: "40px", filter: "brightness(0) invert(1)" }}
+                src={PokerLogo}
+              />
+            </NavItem>
             <NavItem>
               <Link to="/leaderboard">
                 <img width="30" src={LeaderboardIcon} />
@@ -257,7 +277,7 @@ function Dashboard({ socket }) {
             <h1
               style={{
                 textAlign: "center",
-                fontSize: "35px",
+                fontSize: "50px",
                 margin: 0,
                 paddingBottom: "20px",
                 fontWeight: "bold",
@@ -377,7 +397,7 @@ function Dashboard({ socket }) {
                   .
                 </p>
                 <GameModeHeader style={{ marginTop: "15px" }}>
-                  Why is Poker fun
+                  Why is Poker fun?
                 </GameModeHeader>
                 <p style={{ color: "#85BF99", fontSize: "17px" }}>
                   Poker is a fun and exciting game as it combines chance and
@@ -392,6 +412,26 @@ function Dashboard({ socket }) {
               </ScrollableMenuPanel>
             </div>
           </GameMenuWrapper>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: "0",
+            width: "100%",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <div style={{ margin: "15px" }}>
+            <GitHubButton
+              href="https://github.com/carsonmh/one-vs-one-poker"
+              data-icon="octicon-star"
+              data-size="large"
+              aria-label="Star carsonmh/one-vs-one-poker on GitHub"
+            >
+              Star
+            </GitHubButton>
+          </div>
         </div>
       </div>
     </>

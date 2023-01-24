@@ -33,7 +33,11 @@ function OnlineGame({ socket }) {
   return (
     <>
       {!matchFound ? (
-        <GameQueue socket={socket} />
+        <GameQueue
+          socket={socket}
+          message={"Looking for a game..."}
+          showButton={true}
+        />
       ) : (
         <Game roomCode={roomCode} socket={socket} users={users} />
       )}

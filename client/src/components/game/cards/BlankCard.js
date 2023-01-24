@@ -12,6 +12,7 @@ const BlankCard = styled.div`
   background: black;
   color: red;
   font-weight: bold;
+  font-family: Arial;
 `;
 
 export default BlankCard;

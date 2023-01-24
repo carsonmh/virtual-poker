@@ -11,6 +11,7 @@ const StyledCard = styled.div`
   border: solid 1px rgba(150, 150, 150, 0.5);
   border-radius: 5px;
   background: white;
+  font-family: Arial;
 `;
 
 const CardNumber = styled.h1`

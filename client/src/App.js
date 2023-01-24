@@ -17,6 +17,7 @@ function App() {
   return (
     <UserProvider>
       <div
+        className="App"
         style={{
           background: "#2F814B",
           height: "100%",
@@ -52,8 +53,6 @@ function App() {
               }
             />
             <Route path={"/leaderboard"} element={<Leaderboard />} />
-            {/* <Route path="/sign-up" element={<Signup />} />
-            <Route path="/login" element={<Login />} /> */}
           </Routes>
         </Router>
       </div>

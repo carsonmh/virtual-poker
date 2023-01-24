@@ -5,24 +5,28 @@ import { Bars } from "react-loader-spinner";
 
 import StyledButton from "../../buttons/StyledButton";
 
-function GameQueue({ socket }) {
+function GameQueue({ socket, message, showButton }) {
   function handleLeaveMatchmaking() {
     socket.emit("leave_matchmaking");
   }
   return (
     <>
-      <Link to={"/dashboard"}>
-        <StyledButton
-          style={{
-            position: "relative",
-            left: "2%",
-            top: "2%",
-          }}
-          onClick={handleLeaveMatchmaking}
-        >
-          Leave Matchmaking
-        </StyledButton>
-      </Link>
+      <div style={{ height: "75px" }}>
+        {showButton ? (
+          <Link to={"/dashboard"}>
+            <StyledButton
+              style={{
+                position: "absolute",
+                left: "2%",
+                top: "2%",
+              }}
+              onClick={handleLeaveMatchmaking}
+            >
+              Leave Matchmaking
+            </StyledButton>
+          </Link>
+        ) : null}
+      </div>
       <div
         style={{
           display: "flex",
@@ -35,7 +39,7 @@ function GameQueue({ socket }) {
         <div
           style={{ color: "#85BF99", fontSize: "20px", marginBottom: "10px" }}
         >
-          Waiting for a game...
+          {message}
         </div>
         <Bars
           height="120"

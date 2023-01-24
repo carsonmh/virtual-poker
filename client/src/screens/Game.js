@@ -27,6 +27,7 @@ import { auth } from "../config/firebase-config";
 import GameLog from "../components/game/message/GameLog";
 import RestartMessage from "../components/game/message/RestartMessage";
 import StyledButton from "../components/buttons/StyledButton";
+import GameQueue from "../components/game/waiting/GameQueue";
 
 const GameWrapper = styled.div`
   display: grid;
@@ -113,12 +114,13 @@ function Game({ roomCode, socket, users }) {
       ...gameState,
       playerNumber: user.playerNumber,
     }));
-
-    if (users.length > 1 && !gameStarted) {
-      if (playerNumber === 1) {
-        startGame(socket);
+    setTimeout(() => {
+      if (users.length > 1 && !gameStarted) {
+        if (playerNumber === 1) {
+          startGame(socket);
+        }
       }
-    }
+    }, [1000]);
   }, []);
 
   socket.on("game_state_change", (state) => {
@@ -237,6 +239,16 @@ function Game({ roomCode, socket, users }) {
     }
   }, [gameOver]);
 
+  if (!gameStarted) {
+    return (
+      <GameQueue
+        socket={socket}
+        message={"Game found! Loading in..."}
+        showButton={false}
+      />
+    );
+  }
+
   return (
     <>
       <GameWrapper>
@@ -249,39 +261,21 @@ function Game({ roomCode, socket, users }) {
           }}
         >
           {/* <GameLog /> */}
-          {!gameOver ? (
-            <div style={{ height: "75px" }}>
-              <StyledButton
-                style={{
-                  width: "125px",
-                  marginTop: "10px",
-                  marginLeft: "10px",
-                }}
-                onClick={() => {
-                  socket.emit("leave_game");
-                  navigate("/dashboard");
-                }}
-              >
-                Leave Game
-              </StyledButton>
-            </div>
-          ) : (
-            <div style={{ height: "75px" }}>
-              <div>Game Over</div>
-              <div>
-                Winner:{" "}
-                {
-                  getUserFromPlayerString(
-                    determineWinner(p1Cards, p2Cards, mainDeck),
-                    users
-                  ).username
-                }
-              </div>
-              <div>
-                <Link to={"/dashboard"}>Leave</Link>
-              </div>
-            </div>
-          )}
+          <div style={{ height: "75px" }}>
+            <StyledButton
+              style={{
+                width: "125px",
+                marginTop: "10px",
+                marginLeft: "10px",
+              }}
+              onClick={() => {
+                socket.emit("leave_game");
+                navigate("/dashboard");
+              }}
+            >
+              Leave Game
+            </StyledButton>
+          </div>
         </div>
         <Board
           playerNumber={playerNumber}
