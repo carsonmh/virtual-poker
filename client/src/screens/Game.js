@@ -136,7 +136,7 @@ function Game({ roomCode, socket, users }) {
     }));
     setFunctional(false);
     setOpponentDisconnected(true);
-    axios.post("http://10.0.0.145:3001/api/update-elo", {
+    axios.post("http://localhost:3001/api/update-elo", {
       userId: userData.uid,
       newElo: computeEloChange(
         getOpponent(users, user).points,

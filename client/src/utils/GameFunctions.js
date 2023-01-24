@@ -109,7 +109,7 @@ function endGame(
     isWinner
   );
 
-  axios.post("http://10.0.0.145:3001/api/update-elo", {
+  axios.post("http://localhost:3001/api/update-elo", {
     userId: user.uid,
     newElo: computeEloChange(
       user.points,

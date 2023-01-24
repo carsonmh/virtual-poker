@@ -14,7 +14,7 @@ function Leaderboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://10.0.0.145:3001/api/get-users").then((result) => {
+    axios.get("http://localhost:3001/api/get-users").then((result) => {
       let usersArray = Object.values(result.data);
       usersArray.sort((a, b) => b.points - a.points);
       setUsers(usersArray);

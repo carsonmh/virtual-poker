@@ -11,7 +11,7 @@ import Dashboard from "./screens/Dashboard";
 import OnlineGame from "./screens/OnlineGame";
 import Leaderboard from "./screens/Leaderboard";
 
-const socket = io.connect("http://10.0.0.145:3001");
+const socket = io.connect("http://localhost:3001");
 
 function App() {
   return (

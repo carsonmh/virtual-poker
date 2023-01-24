@@ -93,7 +93,7 @@ function Home() {
       return;
     }
     axios
-      .post("http://10.0.0.145:3001/api/signup", {
+      .post("http://localhost:3001/api/signup", {
         username: username
           ? username
           : authUser.displayName + generateRoomCode(),
