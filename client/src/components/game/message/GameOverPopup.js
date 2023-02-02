@@ -7,15 +7,18 @@ import StyledButton from "../../buttons/StyledButton";
 import { computeEloChange, getOpponent } from "../../../utils/Utils";
 import { flexbox } from "@chakra-ui/react";
 
-const LeaveGameButton = styled.StyledButton`
+const LeaveGameButton = styled(StyledButton)`
   background: #ad1822;
-  fontsize: 18px;
+  font-size: 18px;
   position: relative;
   top: 90px;
   color: white;
-  fontweight: bold;
-  marginright: auto;
-  marginleft: auto;
+  font-weight: bold;
+  margin-right: auto;
+  margin-left: auto;
+  &:hover {
+    background: #ad1822;
+  }
 `;
 
 const GameOverPopupWrapper = styled.div`

@@ -275,6 +275,7 @@ function Game({ roomCode, socket, users }) {
             </StyledButton>
           </div>
         </div>
+        <div style={{ height: "75px" }}></div>
         <Board
           playerNumber={playerNumber}
           pot={pot}

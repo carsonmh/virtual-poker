@@ -6,12 +6,14 @@ import {
   SliderThumb,
   Box,
 } from "@chakra-ui/react";
+import styled from "styled-components";
 
 const SliderWrapper = styled.div`
   width: 100px;
   margin: 0 20px 0 20px;
   display: flex;
   align-items: center;
+  justify-content: center;
 `;
 
 function RaiseSlider({
@@ -21,6 +23,7 @@ function RaiseSlider({
   p2Chips,
   raiseAmount,
   setRaiseAmount,
+  SB,
 }) {
   return (
     <SliderWrapper>

@@ -9,7 +9,7 @@ import LeftArrow from "../assets/icons8-left-arrow-100.png";
 import StyledButton from "../components/buttons/StyledButton";
 import LeaderboardSlotWrapper from "../components/leaderboard/LeaderboardSlotWrapper";
 
-const GoBackButton = styled.StyledButton`
+const GoBackButton = styled(StyledButton)`
   position: relative;
   left: 2%;
   top: 2%;

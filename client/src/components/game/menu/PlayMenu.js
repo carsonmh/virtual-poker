@@ -7,10 +7,10 @@ import RaiseSlider from "./RaiseSlider";
 
 const RaiseContentWrapper = styled.div`
   display: flex;
-  justifycontent: center;
+  justify-content: center;
   marginleft: 100px;
   width: 100%;
-  alignitems: center;
+  align-items: center;
 `;
 
 const PlayMenuWrapper = styled.div`
@@ -244,6 +244,7 @@ function PlayMenu({
               p2Chips={p2Chips}
               raiseAmount={raiseAmount}
               setRaiseAmount={setRaiseAmount}
+              SB={SB}
             />
             <RaiseInput
               value={raiseAmount}
