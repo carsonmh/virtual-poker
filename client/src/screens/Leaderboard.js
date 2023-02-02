@@ -1,12 +1,32 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 import LeaderboardSlot from "../components/leaderboard/LeaderboardSlot";
 import Loading from "../components/loading/Loading";
 import LeftArrow from "../assets/icons8-left-arrow-100.png";
 import StyledButton from "../components/buttons/StyledButton";
 import LeaderboardSlotWrapper from "../components/leaderboard/LeaderboardSlotWrapper";
+
+const GoBackButton = styled.StyledButton`
+  position: relative;
+  left: 2%;
+  top: 2%;
+  width: 75px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const UsernameWrapper = styled.div`
+  textoverflow: ellipsis;
+  max-width: 100px;
+  overflow: hidden;
+  whitespace: nowrap;
+  marginleft: 20px;
+`;
 
 function Leaderboard() {
   const [users, setUsers] = useState([]);
@@ -46,23 +66,13 @@ function Leaderboard() {
 
   return (
     <>
-      <StyledButton
-        style={{
-          position: "relative",
-          left: "2%",
-          top: "2%",
-          width: "75px",
-          height: "40px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+      <GoBackButton
         onClick={() => {
           navigate("/dashboard");
         }}
       >
         <img style={{ width: "50%" }} src={LeftArrow} />
-      </StyledButton>
+      </GoBackButton>
       <h1
         style={{
           textAlign: "center",
@@ -75,12 +85,7 @@ function Leaderboard() {
       >
         Leaderboard
       </h1>
-      <LeaderboardSlotWrapper
-        style={{
-          margin: "10px",
-          marginBottom: "10px",
-        }}
-      >
+      <LeaderboardSlotWrapper>
         <div
           style={{
             display: "flex",
@@ -90,17 +95,7 @@ function Leaderboard() {
           }}
         >
           <div>Rank</div>
-          <div
-            style={{
-              textOverflow: "ellipsis",
-              maxWidth: "100px",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              marginLeft: "20px",
-            }}
-          >
-            Username
-          </div>
+          <UsernameWrapper>Username</UsernameWrapper>
         </div>
         <div style={{ fontWeight: "bold" }}>Points</div>
       </LeaderboardSlotWrapper>

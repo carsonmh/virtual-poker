@@ -8,11 +8,9 @@ function getSocketGameRoom(socket) {
 }
 
 async function getUsersInRoom(io, roomCode) {
-  const allConnectedUsers = await io.fetchSockets();
-  const usersInRoom = allConnectedUsers
-    .filter((user) => user.data.roomCode === roomCode)
-    .map((user) => user.data);
-  return usersInRoom;
+  const usersInRoom = await io.in(roomCode).fetchSockets();
+  const userData = await usersInRoom.map((user) => user.data);
+  return userData;
 }
 
 function generateRoomId() {
@@ -73,14 +71,17 @@ async function joinMatchmaking(socket, io, data, q) {
     player2.data.roomCode = room;
     player1.data.playerNumber = 0;
     player2.data.playerNumber = 1;
-    player1.emit("match_found", {
-      user: player1.data,
-      allUsers: await getUsersInRoom(io, room),
-    });
-    player2.emit("match_found", {
-      user: player2.data,
-      allUsers: await getUsersInRoom(io, room),
-    });
+    setTimeout(async () => {
+      const users = await getUsersInRoom(io, room);
+      await player1.emit("match_found", {
+        user: player1.data,
+        allUsers: users,
+      });
+      await player2.emit("match_found", {
+        user: player2.data,
+        allUsers: users,
+      });
+    }, [200]);
   }
 }
 

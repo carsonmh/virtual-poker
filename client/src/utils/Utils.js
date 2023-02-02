@@ -42,7 +42,7 @@ function getUserFromPlayerString(winnerPlayer, users) {
 }
 
 function computeEloChange(elo1, elo2, winner) {
-  const E1 = 1 / (1 + Math.pow(10, (elo1 - elo2) / 400));
+  const E1 = 1 / (1 + Math.pow(10, (elo2 - elo1) / 400));
   const A1 = winner === true ? 1 : 0;
   const new1 = elo1 + 32 * (A1 - E1);
   return new1;

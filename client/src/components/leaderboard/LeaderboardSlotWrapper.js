@@ -7,5 +7,7 @@ const LeaderboardSlotWrapper = styled.div`
   padding: 10px;
   border-radius: 3px;
   color: white;
+  margin: 10px;
+  margin-bottom: 10px;
 `;
 export default LeaderboardSlotWrapper;

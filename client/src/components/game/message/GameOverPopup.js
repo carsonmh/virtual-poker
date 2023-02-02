@@ -7,6 +7,17 @@ import StyledButton from "../../buttons/StyledButton";
 import { computeEloChange, getOpponent } from "../../../utils/Utils";
 import { flexbox } from "@chakra-ui/react";
 
+const LeaveGameButton = styled.StyledButton`
+  background: #ad1822;
+  fontsize: 18px;
+  position: relative;
+  top: 90px;
+  color: white;
+  fontweight: bold;
+  marginright: auto;
+  marginleft: auto;
+`;
+
 const GameOverPopupWrapper = styled.div`
   position: absolute;
   top: 45%;
@@ -101,23 +112,13 @@ function GameOverPopup({
         )}
       </p>
       <Link to={"/dashboard"}>
-        <StyledButton
-          style={{
-            background: "#ad1822",
-            fontSize: "18px",
-            position: "relative",
-            top: "90px",
-            color: "white",
-            fontWeight: "bold",
-            marginRight: "auto",
-            marginLeft: "auto",
-          }}
+        <LeaveGameButton
           onClick={() => {
             socket.emit("leave_game");
           }}
         >
           Back to Menu
-        </StyledButton>
+        </LeaveGameButton>
       </Link>
     </GameOverPopupWrapper>
   );

@@ -3,17 +3,15 @@ import styled from "styled-components";
 
 import CallButton from "./CallButton";
 import MenuButton from "./MenuButton";
+import RaiseSlider from "./RaiseSlider";
 
-import {
-  Button,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
-  Box,
-} from "@chakra-ui/react";
-
-import GameLog from "../message/GameLog";
+const RaiseContentWrapper = styled.div`
+  display: flex;
+  justifycontent: center;
+  marginleft: 100px;
+  width: 100%;
+  alignitems: center;
+`;
 
 const PlayMenuWrapper = styled.div`
   width: 100%;
@@ -23,13 +21,6 @@ const PlayMenuWrapper = styled.div`
   position: absolute;
   bottom: 0%;
   padding: 15px;
-`;
-
-const SliderWrapper = styled.div`
-  width: 100px;
-  margin: 0 20px 0 20px;
-  display: flex;
-  align-items: center;
 `;
 
 const RaiseInput = styled.input`
@@ -243,35 +234,17 @@ function PlayMenu({
           callHandler={callHandler}
         />
       </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginLeft: "100px",
-          width: "100%",
-          alignItems: "center",
-        }}
-      >
+      <RaiseContentWrapper>
         {raising ? (
           <>
-            <SliderWrapper>
-              <Slider
-                onChange={(v) => {
-                  setRaiseAmount(v);
-                }}
-                // defaultValue={10 + Math.max(p1Bet, p2Bet)}
-                min={10 + Math.max(p1Bet, p2Bet)}
-                max={Math.min(p1Chips + p1Bet, p2Chips + p2Bet)}
-                step={SB}
-                value={raiseAmount}
-              >
-                <SliderTrack bg="red.100">
-                  <Box position="relative" right={10} />
-                  <SliderFilledTrack bg="#85BF99" />
-                </SliderTrack>
-                <SliderThumb boxSize={6} />
-              </Slider>
-            </SliderWrapper>
+            <RaiseSlider
+              p1Bet={p1Bet}
+              p2Bet={p2Bet}
+              p1Chips={p1Chips}
+              p2Chips={p2Chips}
+              raiseAmount={raiseAmount}
+              setRaiseAmount={setRaiseAmount}
+            />
             <RaiseInput
               value={raiseAmount}
               onChange={(v) => {
@@ -302,7 +275,7 @@ function PlayMenu({
             </>
           ) : null}
         </MenuButton>
-      </div>
+      </RaiseContentWrapper>
     </PlayMenuWrapper>
   );
 }

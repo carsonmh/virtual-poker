@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
     game.changeGameState(socket, io, state);
   });
 
-  socket.on("join_room", async (data) => {
+  socket.on("join_room", (data) => {
     game.joinRoom(socket, io, data);
   });
 
