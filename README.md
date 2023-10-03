@@ -1,4 +1,4 @@
-# one vs one poker web app
+# poker web app
 
 - React frontend
 - Node.js & Express.js backend
